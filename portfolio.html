@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio | Made With Love</title>
+<meta name="description" content="See the full range of handmade artificial flower arrangements from Made With Love — wreaths, hat boxes, grave pots, bobo balloons and rose bears.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf5ee; --card:#fffdf9; --hessian:#b89968; --hessian-dark:#8f7350;
+    --blush:#eec9cd; --blush-dark:#d98f95; --sage:#a8b99a; --sage-dark:#7c9268;
+    --ink:#4a3f35; --ink-soft:#7a6d5e; --radius:14px; --maxw:1120px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:var(--ink);background:var(--cream);line-height:1.65;}
+  img{max-width:100%;display:block;}
+  a{color:inherit;}
+  h1,h2,h3{font-family:'Playfair Display',Georgia,serif;}
+  .script{font-family:'Dancing Script',cursive;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+
+  header.site-nav{position:sticky;top:0;z-index:50;background:rgba(250,245,238,0.94);border-bottom:1px solid #e9ddc9;backdrop-filter:blur(6px);}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:10px 24px;max-width:var(--maxw);margin:0 auto;gap:16px;}
+  .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+  .nav-logo .nav-word{font-size:1.5rem;color:var(--hessian-dark);font-weight:700;}
+  nav.links{display:flex;gap:26px;font-size:15px;font-weight:600;}
+  nav.links a{text-decoration:none;color:var(--ink-soft);transition:color .15s;}
+  nav.links a:hover,nav.links a.active{color:var(--hessian-dark);}
+  .nav-cta{background:var(--hessian-dark);color:#fff;padding:10px 20px;border-radius:24px;font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap;}
+
+  .tag-badge{
+    border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, #cdae7f, #a9895f 65%, #8a6d47);
+    box-shadow:inset 0 0 0 3px rgba(255,255,255,.18), 0 6px 16px rgba(74,63,53,.25);
+    display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;
+  }
+  .tag-badge::after{content:'';position:absolute;top:10%;left:50%;transform:translateX(-50%);width:9%;height:9%;border-radius:50%;background:#4a3f35;opacity:.3;}
+  .tag-badge .script{color:#fffaf3;text-align:center;line-height:1.05;}
+  .tag-badge.nav-badge{width:44px;height:44px;transform:rotate(-8deg);}
+  .tag-badge.nav-badge .script{font-size:10px;font-weight:700;}
+  .tag-badge.hero-badge{width:120px;height:120px;transform:rotate(-9deg);}
+  .tag-badge.hero-badge .script{font-size:22px;font-weight:700;}
+
+  .hero{background:linear-gradient(160deg,#f6e8e2 0%,#faf5ee 45%,#f2ede0 100%);padding:64px 0 60px;border-bottom:1px solid #e9ddc9;position:relative;overflow:hidden;}
+  .hero-inner{max-width:var(--maxw);margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1.05fr 0.95fr;gap:48px;align-items:center;}
+  .eyebrow{display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--hessian-dark);background:rgba(184,153,104,.15);padding:6px 14px;border-radius:20px;margin-bottom:18px;}
+  h1.script-title{font-size:4.2rem;line-height:1;color:var(--hessian-dark);margin-bottom:16px;font-weight:700;}
+  .hero p.lead{font-size:1.12rem;color:var(--ink-soft);max-width:50ch;margin-bottom:28px;}
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn{display:inline-block;padding:13px 26px;border-radius:26px;font-weight:700;text-decoration:none;font-size:15px;transition:transform .15s, box-shadow .15s;border:none;cursor:pointer;}
+  .btn-primary{background:var(--hessian-dark);color:#fff;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(143,115,80,.35);}
+  .btn-secondary{background:#fff;color:var(--hessian-dark);border:1.5px solid var(--hessian-dark);}
+  .btn-secondary:hover{transform:translateY(-2px);}
+
+  .hero-photo-card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:0 16px 44px rgba(74,63,53,.14);border:1px solid #eee1d0;position:relative;}
+  .placeholder-img{
+    aspect-ratio:4/3;border-radius:10px;
+    background:linear-gradient(135deg,var(--blush) 0%, #f3e3d8 55%, var(--sage) 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    border:2px dashed rgba(143,115,80,.35);
+  }
+  .placeholder-img .ph-icon{font-size:2.4rem;}
+  .placeholder-img .ph-label{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;}
+  .placeholder-img.has-photo{border:none;background:none;padding:0;display:block;}
+  .placeholder-img.has-photo img{width:100%;height:100%;object-fit:cover;border-radius:inherit;}
+  .hero-photo-card .tag-badge{position:absolute;top:-22px;right:-14px;}
+
+  section{padding:74px 0;}
+  .section-head{max-width:640px;margin:0 auto 44px;text-align:center;}
+  .section-head .eyebrow{margin-bottom:14px;}
+  .section-head h2{font-size:2.1rem;color:var(--ink);margin-bottom:14px;font-weight:700;}
+  .section-head p{color:var(--ink-soft);font-size:1.05rem;}
+
+  .page-hero{background:linear-gradient(160deg,#f6e8e2 0%,#faf5ee 100%);border-bottom:1px solid #e9ddc9;padding:54px 0 50px;text-align:center;}
+  .page-hero h1{font-size:2.6rem;color:var(--hessian-dark);margin-bottom:12px;}
+  .page-hero p{color:var(--ink-soft);font-size:1.08rem;max-width:640px;margin:0 auto;}
+
+  .about{background:var(--card);border-top:1px solid #eee1d0;border-bottom:1px solid #eee1d0;}
+  .about .wrap{max-width:780px;text-align:center;}
+  .about h2{font-size:2rem;margin-bottom:18px;}
+  .about p{color:var(--ink-soft);font-size:1.08rem;margin-bottom:14px;}
+
+  .arrangements{background:var(--cream);}
+  .prod-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:26px;}
+  .prod-card{background:var(--card);border:1px solid #eee1d0;border-radius:var(--radius);overflow:hidden;transition:box-shadow .15s, transform .15s;}
+  .prod-card:hover{box-shadow:0 14px 34px rgba(74,63,53,.12);transform:translateY(-3px);}
+  .prod-card .placeholder-img{aspect-ratio:1/1;border-radius:0;border-width:0 0 2px dashed;border-color:rgba(143,115,80,.25);}
+  .prod-card .placeholder-img.has-photo{border:none;}
+  .prod-card .prod-body{padding:20px 22px 24px;}
+  .prod-card h3{font-size:1.25rem;color:var(--hessian-dark);margin-bottom:8px;}
+  .prod-card p{font-size:.93rem;color:var(--ink-soft);}
+
+  .gallery-filters{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:38px;}
+  .filter-btn{background:#fff;border:1.5px solid var(--hessian-dark);color:var(--hessian-dark);font-size:14px;font-weight:700;padding:9px 20px;border-radius:22px;cursor:pointer;transition:background .15s,color .15s;}
+  .filter-btn:hover{background:rgba(143,115,80,.1);}
+  .filter-btn.active{background:var(--hessian-dark);color:#fff;}
+  .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:22px;}
+  .gallery-card{background:var(--card);border:1px solid #eee1d0;border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:box-shadow .15s,transform .15s;position:relative;}
+  .gallery-card:hover{box-shadow:0 14px 34px rgba(74,63,53,.14);transform:translateY(-3px);}
+  .gallery-card .g-photo{aspect-ratio:1/1;overflow:hidden;}
+  .gallery-card .g-photo img{width:100%;height:100%;object-fit:cover;transition:transform .25s;}
+  .gallery-card:hover .g-photo img{transform:scale(1.05);}
+  .gallery-card .g-cap{padding:12px 14px;font-size:.85rem;color:var(--ink-soft);font-weight:600;}
+  .gallery-card .g-tag{position:absolute;top:10px;left:10px;background:rgba(74,63,53,.75);color:#fffaf3;font-size:11px;font-weight:700;letter-spacing:.03em;padding:4px 10px;border-radius:12px;}
+  .gallery-card.placeholder{cursor:default;}
+  .gallery-card.placeholder:hover{box-shadow:none;transform:none;}
+  .gallery-card.placeholder .g-photo{background:linear-gradient(135deg,var(--blush) 0%, #f3e3d8 55%, var(--sage) 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:2px dashed rgba(143,115,80,.35);}
+  .gallery-card.placeholder .g-icon{font-size:2.2rem;}
+  .gallery-card.placeholder .g-label{font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;}
+  .gallery-empty{text-align:center;color:var(--ink-soft);font-size:1.02rem;padding:40px 20px;}
+  .gallery-empty .ge-icon{font-size:2.4rem;display:block;margin-bottom:12px;}
+
+  .lightbox{display:none;position:fixed;inset:0;z-index:500;background:rgba(30,24,18,.92);align-items:center;justify-content:center;padding:40px;}
+  .lightbox.open{display:flex;}
+  .lightbox-inner{max-width:min(880px,90vw);max-height:86vh;text-align:center;}
+  .lightbox-inner img{max-width:100%;max-height:74vh;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.4);}
+  .lightbox-cap{color:#fffaf3;margin-top:16px;font-size:.95rem;}
+  .lightbox-close{position:absolute;top:20px;right:28px;background:rgba(255,255,255,.12);border:none;color:#fff;width:42px;height:42px;border-radius:50%;font-size:22px;cursor:pointer;line-height:1;}
+  .lightbox-close:hover{background:rgba(255,255,255,.24);}
+  .lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.12);border:none;color:#fff;width:48px;height:48px;border-radius:50%;font-size:22px;cursor:pointer;}
+  .lightbox-nav:hover{background:rgba(255,255,255,.24);}
+  .lightbox-prev{left:24px;}
+  .lightbox-next{right:24px;}
+
+  .why{background:linear-gradient(135deg,#f6e8e2,#eef1e6);}
+  .why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;text-align:center;}
+  .why-item{background:rgba(255,253,249,.6);border-radius:var(--radius);padding:26px 18px;}
+  .why-item .wi-icon{font-size:1.8rem;margin-bottom:10px;}
+  .why-item h4{font-size:1rem;margin-bottom:6px;color:var(--ink);font-family:'Poppins',sans-serif;font-weight:700;}
+  .why-item p{font-size:.86rem;color:var(--ink-soft);}
+
+  .contact{background:var(--hessian-dark);color:#fffaf3;}
+  .contact .section-head h2{color:#fffaf3;}
+  .contact .section-head p{color:#ecdcc4;}
+  .contact-card{max-width:560px;margin:0 auto;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:var(--radius);padding:34px;text-align:center;}
+  .placeholder-badge{display:inline-block;background:var(--blush-dark);color:#fff;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:14px;margin-bottom:18px;}
+  .contact-rows{display:flex;flex-direction:column;gap:14px;margin:20px 0 26px;text-align:left;}
+  .contact-row{display:flex;gap:12px;align-items:flex-start;background:rgba(255,255,255,.06);padding:14px 16px;border-radius:8px;}
+  .contact-row .icon{font-size:18px;}
+  .contact-row .label{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#e6d2b8;font-weight:700;}
+  .contact-row .val{font-size:15px;font-weight:600;}
+  .contact .btn-primary{background:#fff;color:var(--hessian-dark);}
+  .contact .btn-primary:hover{box-shadow:0 8px 18px rgba(0,0,0,.25);}
+  .contact-form{max-width:560px;margin:34px auto 0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:var(--radius);padding:30px;text-align:left;}
+  .contact-form label{display:block;font-size:13px;font-weight:700;margin-bottom:6px;margin-top:14px;color:#f3e6d5;}
+  .contact-form label:first-child{margin-top:0;}
+  .contact-form input,.contact-form textarea{width:100%;padding:11px 13px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.95);font-family:inherit;font-size:14px;}
+  .contact-form textarea{min-height:100px;resize:vertical;}
+  .contact-form button{margin-top:20px;width:100%;}
+
+  footer{background:#3a2f26;color:#c9b79c;padding:30px 0;font-size:13px;}
+  .footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+  .footer-inner .brand{color:#fffaf3;font-family:'Dancing Script',cursive;font-size:1.2rem;}
+  .footer-inner .flinks a{color:#c9b79c;text-decoration:none;margin-left:16px;}
+  .footer-inner .flinks a:hover{color:#fffaf3;}
+
+  #mwl-chat-launcher{position:fixed;bottom:22px;right:22px;z-index:200;width:60px;height:60px;border-radius:50%;background:var(--hessian-dark);color:#fff;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(74,63,53,.35);font-size:26px;display:flex;align-items:center;justify-content:center;transition:transform .15s;}
+  #mwl-chat-launcher:hover{transform:scale(1.06);}
+  #mwl-chat-launcher .close-ic{display:none;}
+  #mwl-chat-launcher.open .chat-ic{display:none;}
+  #mwl-chat-launcher.open .close-ic{display:block;}
+  #mwl-chat-badge{position:absolute;top:-4px;right:-4px;background:var(--blush-dark);color:#fff;font-size:10px;font-weight:800;border-radius:10px;padding:2px 6px;}
+  #mwl-chat-panel{position:fixed;bottom:94px;right:22px;z-index:200;width:340px;max-width:calc(100vw - 32px);background:#fffdf9;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(74,63,53,.30);border:1px solid #eee1d0;display:none;flex-direction:column;height:500px;max-height:calc(100vh - 140px);}
+  #mwl-chat-panel.open{display:flex;}
+  .chat-head{background:var(--hessian-dark);color:#fffaf3;padding:16px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .chat-head .dot{width:9px;height:9px;border-radius:50%;background:#8fd0a0;flex-shrink:0;}
+  .chat-head .titles{line-height:1.25;}
+  .chat-head .titles .t1{font-weight:800;font-size:14px;}
+  .chat-head .titles .t2{font-size:11px;color:#ecdcc4;}
+  .chat-body{flex:1;overflow-y:auto;padding:16px;background:#faf5ee;display:flex;flex-direction:column;gap:10px;}
+  .chat-msg{max-width:85%;padding:10px 13px;border-radius:12px;font-size:13.5px;line-height:1.45;}
+  .chat-msg.bot{background:#fff;border:1px solid #eee1d0;color:var(--ink);align-self:flex-start;border-bottom-left-radius:3px;}
+  .chat-msg.user{background:var(--hessian-dark);color:#fff;align-self:flex-end;border-bottom-right-radius:3px;}
+  .chat-quick{display:flex;flex-wrap:wrap;gap:7px;align-self:flex-start;max-width:100%;}
+  .chat-quick button{background:#fff;border:1.3px solid var(--hessian-dark);color:var(--hessian-dark);font-size:12px;font-weight:700;padding:7px 11px;border-radius:16px;cursor:pointer;transition:background .15s, color .15s;}
+  .chat-quick button:hover{background:var(--hessian-dark);color:#fff;}
+  .chat-live-cta{border-top:1px solid #eee1d0;padding:10px 14px;background:#fff;flex-shrink:0;}
+  .chat-live-cta button{width:100%;background:var(--blush-dark);color:#fff;border:none;border-radius:20px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;}
+  .chat-live-cta button:hover{background:#c67d83;}
+  .chat-foot{border-top:1px solid #eee1d0;padding:10px;display:flex;gap:8px;background:#fff;flex-shrink:0;}
+  .chat-foot input{flex:1;border:1px solid #e6dac6;border-radius:20px;padding:9px 14px;font-size:13px;outline:none;}
+  .chat-foot input:focus{border-color:var(--hessian-dark);}
+  .chat-foot button{background:var(--hessian-dark);color:#fff;border:none;border-radius:20px;padding:0 16px;font-weight:700;font-size:13px;cursor:pointer;}
+  .chat-disclaimer{font-size:10px;color:var(--ink-soft);text-align:center;padding:6px 10px 0;background:#fff;}
+
+  @media(max-width:900px){
+    .hero-inner{grid-template-columns:1fr;}
+    .hero-photo-card{order:-1;max-width:420px;margin:0 auto;}
+    .why-grid{grid-template-columns:1fr 1fr;}
+    nav.links{display:none;}
+  }
+  @media(max-width:560px){
+    h1.script-title{font-size:3rem;}
+    .why-grid{grid-template-columns:1fr 1fr;}
+    .nav-cta{display:none;}
+    #mwl-chat-panel{right:16px;left:16px;width:auto;bottom:88px;}
+    #mwl-chat-launcher{right:16px;bottom:16px;}
+    .gallery-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}
+    .lightbox{padding:16px;}
+    .lightbox-nav{width:40px;height:40px;font-size:18px;}
+    .lightbox-prev{left:8px;}
+    .lightbox-next{right:8px;}
+    .lightbox-close{top:10px;right:10px;width:38px;height:38px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="tag-badge nav-badge"><span class="script">MWL</span></div>
+      <span class="nav-word script">Made With Love</span>
+    </a>
+    <nav class="links">
+      <a href="index.html">Home</a>
+      <a href="portfolio.html" class="active">Portfolio</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <a href="contact.html" class="nav-cta">Get in Touch</a>
+  </div>
+</header>
+
+
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">What We Make</span>
+    <h1>Our Portfolio</h1>
+    <p>Every piece handmade to order — ask about custom colours for any occasion.</p>
+  </div>
+</section>
+
+
+<section class="arrangements" id="portfolio">
+  <div class="wrap">
+    <div class="gallery-filters">
+      <button class="filter-btn active" data-filter="All">All</button>
+      <button class="filter-btn" data-filter="Wreaths">Wreaths</button>
+      <button class="filter-btn" data-filter="Hat Boxes">Hat Boxes</button>
+      <button class="filter-btn" data-filter="Grave Pots">Grave Pots</button>
+      <button class="filter-btn" data-filter="Bobo Balloons">Bobo Balloons</button>
+      <button class="filter-btn" data-filter="Rose Bears">Rose Bears</button>
+    </div>
+    <div class="gallery-grid" id="mwl-gallery-grid"></div>
+  </div>
+</section>
+
+<div class="lightbox" id="mwl-lightbox">
+  <button class="lightbox-close" id="mwl-lb-close" aria-label="Close">&#10005;</button>
+  <button class="lightbox-nav lightbox-prev" id="mwl-lb-prev" aria-label="Previous">&#10094;</button>
+  <div class="lightbox-inner">
+    <img id="mwl-lb-img" src="" alt="">
+    <div class="lightbox-cap" id="mwl-lb-cap"></div>
+  </div>
+  <button class="lightbox-nav lightbox-next" id="mwl-lb-next" aria-label="Next">&#10095;</button>
+</div>
+
+<script>
+(function(){
+  var CATS = [{"name": "Wreaths", "icon": "\ud83c\udf42"}, {"name": "Hat Boxes", "icon": "\ud83c\udfa9"}, {"name": "Grave Pots", "icon": "\ud83c\udf3f"}, {"name": "Bobo Balloons", "icon": "\ud83c\udf88"}, {"name": "Rose Bears", "icon": "\ud83e\uddf8"}];
+  var ITEMS = [{"category": "Hat Boxes", "file": "hatbox.jpg", "alt": "Made With Love \u2014 hat box rose arrangement", "caption": "Classic rose hat box arrangement"}, {"category": "Bobo Balloons", "file": "bobo.jpg", "alt": "Made With Love \u2014 rose and balloon arrangement", "caption": "Rose-filled bobo balloon"}, {"category": "Rose Bears", "file": "rosebear.jpg", "alt": "Made With Love \u2014 hand-made rose bear", "caption": "Hand-made rose bear"}];
+  var grid = document.getElementById('mwl-gallery-grid');
+  var filterBtns = document.querySelectorAll('.filter-btn');
+  var currentFilter = 'All';
+  var visiblePhotos = [];
+
+  function itemsFor(catName) {
+    return ITEMS.filter(function(it) { return it.category === catName; });
+  }
+
+  function render(filter) {
+    currentFilter = filter;
+    grid.innerHTML = '';
+    visiblePhotos = [];
+
+    var catsToShow = filter === 'All' ? CATS : CATS.filter(function(c) { return c.name === filter; });
+
+    if (filter !== 'All' && itemsFor(filter).length === 0) {
+      var cat = CATS.filter(function(c) { return c.name === filter; })[0];
+      grid.innerHTML = '<div class="gallery-empty" style="grid-column:1/-1;"><span class="ge-icon">' + (cat ? cat.icon : '&#127800;') + '</span>Photos of our ' + filter + ' are coming soon &mdash; ask us directly in the meantime!</div>';
+      return;
+    }
+
+    catsToShow.forEach(function(cat) {
+      var photos = itemsFor(cat.name);
+      if (photos.length === 0) {
+        var card = document.createElement('div');
+        card.className = 'gallery-card placeholder';
+        card.innerHTML = '<div class="g-photo"><span class="g-icon">' + cat.icon + '</span><span class="g-label">' + cat.name + ' — coming soon</span></div>';
+        grid.appendChild(card);
+        return;
+      }
+      photos.forEach(function(it) {
+        var idx = visiblePhotos.length;
+        visiblePhotos.push(it);
+        var card = document.createElement('div');
+        card.className = 'gallery-card';
+        card.innerHTML = '<span class="g-tag">' + it.category + '</span><div class="g-photo"><img src="images/' + it.file + '" alt="' + it.alt + '" loading="lazy"></div><div class="g-cap">' + it.caption + '</div>';
+        card.addEventListener('click', function() { openLightbox(idx); });
+        grid.appendChild(card);
+      });
+    });
+  }
+
+  filterBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      filterBtns.forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      render(btn.getAttribute('data-filter'));
+    });
+  });
+
+  var lightbox = document.getElementById('mwl-lightbox');
+  var lbImg = document.getElementById('mwl-lb-img');
+  var lbCap = document.getElementById('mwl-lb-cap');
+  var lbIndex = 0;
+
+  function openLightbox(idx) {
+    lbIndex = idx;
+    showLightboxPhoto();
+    lightbox.classList.add('open');
+  }
+  function showLightboxPhoto() {
+    var it = visiblePhotos[lbIndex];
+    if (!it) return;
+    lbImg.src = 'images/' + it.file;
+    lbImg.alt = it.alt;
+    lbCap.textContent = it.caption + ' — ' + it.category;
+  }
+  function closeLightbox() { lightbox.classList.remove('open'); }
+  function nextPhoto() { lbIndex = (lbIndex + 1) % visiblePhotos.length; showLightboxPhoto(); }
+  function prevPhoto() { lbIndex = (lbIndex - 1 + visiblePhotos.length) % visiblePhotos.length; showLightboxPhoto(); }
+
+  document.getElementById('mwl-lb-close').addEventListener('click', closeLightbox);
+  document.getElementById('mwl-lb-next').addEventListener('click', nextPhoto);
+  document.getElementById('mwl-lb-prev').addEventListener('click', prevPhoto);
+  lightbox.addEventListener('click', function(e) { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', function(e) {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') nextPhoto();
+    if (e.key === 'ArrowLeft') prevPhoto();
+  });
+
+  render('All');
+})();
+</script>
+
+<section class="contact" id="cta">
+  <div class="wrap" style="text-align:center;">
+    <span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fffaf3;">Get in touch</span>
+    <h2 style="margin-bottom:16px;">Let's talk about your arrangement</h2>
+    <p style="color:#ecdcc4;max-width:520px;margin:0 auto 26px;">Tell us what you have in mind &mdash; style, colours, and any special dates.</p>
+    <a href="contact.html" class="btn btn-primary">Contact Us</a>
+  </div>
+</section>
+
+
+<footer>
+  <div class="wrap footer-inner">
+    <div class="brand">Made With Love</div>
+    <div>Handmade Artificial Flower Arrangements</div>
+    <div class="flinks">
+      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="about.html">About</a><a href="contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
+
+
+<button id="mwl-chat-launcher" aria-label="Open chat">
+  <span class="chat-ic">&#128172;</span>
+  <span class="close-ic">&#10005;</span>
+  <span id="mwl-chat-badge">?</span>
+</button>
+
+<div id="mwl-chat-panel">
+  <div class="chat-head">
+    <span class="dot"></span>
+    <div class="titles">
+      <div class="t1">Made With Love</div>
+      <div class="t2">Quick answers, or message us directly</div>
+    </div>
+  </div>
+  <div class="chat-body" id="mwl-chat-body"></div>
+  <div class="chat-live-cta">
+    <button id="mwl-live-chat-btn">&#128172; Talk to a real person</button>
+  </div>
+  <div class="chat-foot">
+    <input type="text" id="mwl-chat-input" placeholder="Ask a question&hellip;" autocomplete="off">
+    <button id="mwl-chat-send">Send</button>
+  </div>
+  <div class="chat-disclaimer">Quick-answers are automated. "Talk to a real person" reaches us directly.</div>
+</div>
+
+<!--
+  LIVE CHAT: once you've created a free live-chat account (e.g. tawk.to),
+  paste the embed script they give you here, right before the closing
+  script tag below. The "Talk to a real person" button will then open
+  it automatically (it looks for window.Tawk_API). Until then, that
+  button goes to the Contact page instead.
+-->
+
+<script>
+(function(){
+  var yEl = document.getElementById('year');
+  if (yEl) { yEl.textContent = new Date().getFullYear(); }
+
+  var KB = [
+    { topic: "Our Arrangements", keys: ["arrangement","product","make","wreath","hat box","grave pot","balloon","rose bear","portfolio"],
+      a: "We make wreaths, hat box arrangements, grave pots, bobo balloons and hand-made rose bears — all with high-quality artificial flowers that keep their beauty all year round. See the Portfolio page for the full range." },
+    { topic: "Ordering", keys: ["order","buy","price","cost","how do i"],
+      a: "Get in touch with what you're after — style, colours and any special dates — and we'll come back with pricing and options." },
+    { topic: "Delivery & Collection", keys: ["deliver","collect","postage","ship"],
+      a: "Local delivery and collection can be arranged — just ask when you get in touch." },
+    { topic: "Custom Colours", keys: ["colour","color","custom","match"],
+      a: "Yes! Most arrangements can be made in your choice of colours to match an event, home or memorial." },
+    { topic: "Care", keys: ["last","water","care","wilt","maintain"],
+      a: "Our artificial arrangements are made to last — no watering needed, and they'll keep their colour and shape for years." },
+  ];
+  var FALLBACK = "I don't have a set answer for that yet — tap \u201cTalk to a real person\u201d below and we'll get back to you directly.";
+
+  var launcher = document.getElementById('mwl-chat-launcher');
+  var panel = document.getElementById('mwl-chat-panel');
+  var body = document.getElementById('mwl-chat-body');
+  var input = document.getElementById('mwl-chat-input');
+  var sendBtn = document.getElementById('mwl-chat-send');
+  var badge = document.getElementById('mwl-chat-badge');
+  var liveBtn = document.getElementById('mwl-live-chat-btn');
+  var opened = false;
+
+  function addMsg(text, sender){
+    var div = document.createElement('div');
+    div.className = 'chat-msg ' + sender;
+    div.textContent = text;
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function showQuickReplies(){
+    var wrap = document.createElement('div');
+    wrap.className = 'chat-quick';
+    KB.forEach(function(item){
+      var btn = document.createElement('button');
+      btn.textContent = item.topic;
+      btn.addEventListener('click', function(){ handleTopic(item); });
+      wrap.appendChild(btn);
+    });
+    body.appendChild(wrap);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function handleTopic(item){
+    addMsg(item.topic, 'user');
+    setTimeout(function(){ addMsg(item.a, 'bot'); showQuickReplies(); }, 250);
+  }
+
+  function handleFreeText(text){
+    var lower = text.toLowerCase();
+    var match = null;
+    for (var i=0;i<KB.length;i++){
+      for (var j=0;j<KB[i].keys.length;j++){
+        if (lower.indexOf(KB[i].keys[j]) !== -1){ match = KB[i]; break; }
+      }
+      if (match) break;
+    }
+    setTimeout(function(){ addMsg(match ? match.a : FALLBACK, 'bot'); showQuickReplies(); }, 250);
+  }
+
+  function toggle(){
+    opened = !opened;
+    panel.classList.toggle('open', opened);
+    launcher.classList.toggle('open', opened);
+    if (opened) {
+      badge.style.display = 'none';
+      if (!body.dataset.greeted) {
+        addMsg("Hi! I'm the Made With Love assistant. Ask me a quick question, or tap \u201cTalk to a real person\u201d to message us directly.", 'bot');
+        showQuickReplies();
+        body.dataset.greeted = '1';
+      }
+    }
+  }
+
+  launcher.addEventListener('click', toggle);
+
+  sendBtn.addEventListener('click', function(){
+    var val = input.value.trim();
+    if (!val) return;
+    addMsg(val, 'user');
+    input.value = '';
+    handleFreeText(val);
+  });
+  input.addEventListener('keydown', function(e){ if (e.key === 'Enter') sendBtn.click(); });
+
+  liveBtn.addEventListener('click', function(){
+    if (window.Tawk_API && typeof window.Tawk_API.toggle === 'function') {
+      window.Tawk_API.toggle();
+    } else {
+      window.location.href = 'contact.html';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
