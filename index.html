@@ -152,6 +152,11 @@
   .contact-form input,.contact-form textarea{width:100%;padding:11px 13px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.95);font-family:inherit;font-size:14px;}
   .contact-form textarea{min-height:100px;resize:vertical;}
   .contact-form button{margin-top:20px;width:100%;}
+  .contact-form button:disabled{opacity:.6;cursor:not-allowed;}
+  .contact-form .form-status{margin-top:14px;font-size:13.5px;font-weight:700;min-height:18px;}
+  .contact-form .form-status.success{color:#bfe8c9;}
+  .contact-form .form-status.error{color:#f3b6ab;}
+  .contact-form .mwl-honeypot{position:absolute;left:-9999px;opacity:0;}
 
   footer{background:#3a2f26;color:#c9b79c;padding:30px 0;font-size:13px;}
   .footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}

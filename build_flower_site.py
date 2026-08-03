@@ -182,6 +182,11 @@ CSS = """
   .contact-form input,.contact-form textarea{width:100%;padding:11px 13px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.95);font-family:inherit;font-size:14px;}
   .contact-form textarea{min-height:100px;resize:vertical;}
   .contact-form button{margin-top:20px;width:100%;}
+  .contact-form button:disabled{opacity:.6;cursor:not-allowed;}
+  .contact-form .form-status{margin-top:14px;font-size:13.5px;font-weight:700;min-height:18px;}
+  .contact-form .form-status.success{color:#bfe8c9;}
+  .contact-form .form-status.error{color:#f3b6ab;}
+  .contact-form .mwl-honeypot{position:absolute;left:-9999px;opacity:0;}
 
   footer{background:#3a2f26;color:#c9b79c;padding:30px 0;font-size:13px;}
   .footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
@@ -432,13 +437,25 @@ CHAT_WIDGET = """
   <div class="chat-disclaimer">Quick-answers are automated. "Talk to a real person" reaches us directly.</div>
 </div>
 
-<!--
-  LIVE CHAT: once you've created a free live-chat account (e.g. tawk.to),
-  paste the embed script they give you here, right before the closing
-  script tag below. The "Talk to a real person" button will then open
-  it automatically (it looks for window.Tawk_API). Until then, that
-  button goes to the Contact page instead.
--->
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+Tawk_API.onLoad = function(){
+  // keep Tawk.to's own floating bubble hidden — "Talk to a real person"
+  // above is the only thing that should open it, so we don't end up
+  // with two chat bubbles stacked in the corner.
+  if (typeof Tawk_API.hideWidget === 'function') { Tawk_API.hideWidget(); }
+};
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/6a70e89608d7a41d4157837c/1jv4gp2uq';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
 
 <script>
 (function(){
@@ -706,26 +723,58 @@ contact_body = """
       <p>Tell us what you have in mind &mdash; style, colours, and any special dates &mdash; or message us directly using the chat button in the corner.</p>
     </div>
     <form class="contact-form" id="mwl-contact-form">
+      <input type="hidden" name="access_key" value="5f546492-e8a0-47b9-ba5b-e9a3423e9e7b">
+      <input type="hidden" name="subject" value="New enquiry from the Made With Love website">
+      <input type="hidden" name="from_name" value="Made With Love Website">
+      <input type="checkbox" name="botcheck" class="mwl-honeypot" tabindex="-1" autocomplete="off">
       <label for="mf-name">Your Name</label>
-      <input type="text" id="mf-name" required>
+      <input type="text" id="mf-name" name="name" required>
       <label for="mf-email">Email</label>
-      <input type="email" id="mf-email" required>
+      <input type="email" id="mf-email" name="email" required>
       <label for="mf-message">What are you after?</label>
-      <textarea id="mf-message" placeholder="Tell us the occasion, colours, and any dates that matter..."></textarea>
-      <button type="submit" class="btn btn-primary">Send Enquiry</button>
+      <textarea id="mf-message" name="message" placeholder="Tell us the occasion, colours, and any dates that matter..."></textarea>
+      <button type="submit" class="btn btn-primary" id="mf-submit">Send Enquiry</button>
+      <div class="form-status" id="mf-status" role="status" aria-live="polite"></div>
     </form>
   </div>
 </section>
 <script>
-document.getElementById('mwl-contact-form').addEventListener('submit', function(e){
-  e.preventDefault();
-  var name = document.getElementById('mf-name').value;
-  var email = document.getElementById('mf-email').value;
-  var message = document.getElementById('mf-message').value;
-  var subject = encodeURIComponent('Arrangement enquiry from ' + name);
-  var body = encodeURIComponent(message + '\\n\\nReply to: ' + email);
-  window.location.href = 'mailto:hello@mwlflorals.co.uk?subject=' + subject + '&body=' + body;
-});
+(function(){
+  var form = document.getElementById('mwl-contact-form');
+  if(!form) return;
+  var status = document.getElementById('mf-status');
+  var btn = document.getElementById('mf-submit');
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    status.className = 'form-status';
+    status.textContent = '';
+    var formData = new FormData(form);
+    var payload = Object.fromEntries(formData.entries());
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify(payload)
+    }).then(function(res){ return res.json(); }).then(function(data){
+      if (data.success) {
+        status.className = 'form-status success';
+        status.textContent = "Thanks \\u2014 your message is on its way. We'll be in touch soon.";
+        form.reset();
+      } else {
+        status.className = 'form-status error';
+        status.textContent = 'Something went wrong sending that. Please try again, or message us via the chat button.';
+      }
+      btn.disabled = false;
+      btn.textContent = 'Send Enquiry';
+    }).catch(function(){
+      status.className = 'form-status error';
+      status.textContent = 'Something went wrong sending that. Please try again, or message us via the chat button.';
+      btn.disabled = false;
+      btn.textContent = 'Send Enquiry';
+    });
+  });
+})();
 </script>
 """
 
