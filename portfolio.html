@@ -398,13 +398,25 @@
   <div class="chat-disclaimer">Quick-answers are automated. "Talk to a real person" reaches us directly.</div>
 </div>
 
-<!--
-  LIVE CHAT: once you've created a free live-chat account (e.g. tawk.to),
-  paste the embed script they give you here, right before the closing
-  script tag below. The "Talk to a real person" button will then open
-  it automatically (it looks for window.Tawk_API). Until then, that
-  button goes to the Contact page instead.
--->
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+Tawk_API.onLoad = function(){
+  // keep Tawk.to's own floating bubble hidden — "Talk to a real person"
+  // above is the only thing that should open it, so we don't end up
+  // with two chat bubbles stacked in the corner.
+  if (typeof Tawk_API.hideWidget === 'function') { Tawk_API.hideWidget(); }
+};
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/6a70e89608d7a41d4157837c/1jv4gp2uq';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
 
 <script>
 (function(){
