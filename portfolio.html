@@ -251,6 +251,7 @@
       <button class="filter-btn" data-filter="Grave Pots">Grave Pots</button>
       <button class="filter-btn" data-filter="Bobo Balloons">Bobo Balloons</button>
       <button class="filter-btn" data-filter="Rose Bears">Rose Bears</button>
+      <button class="filter-btn" data-filter="Christmas">Christmas</button>
     </div>
     <div class="gallery-grid" id="mwl-gallery-grid"></div>
   </div>
@@ -268,8 +269,8 @@
 
 <script>
 (function(){
-  var CATS = [{"name": "Wreaths", "icon": "\ud83c\udf42"}, {"name": "Hat Boxes", "icon": "\ud83c\udfa9"}, {"name": "Grave Pots", "icon": "\ud83c\udf3f"}, {"name": "Bobo Balloons", "icon": "\ud83c\udf88"}, {"name": "Rose Bears", "icon": "\ud83e\uddf8"}];
-  var ITEMS = [{"category": "Hat Boxes", "file": "hatbox.jpg", "alt": "Made With Love \u2014 hat box rose arrangement", "caption": "Classic rose hat box arrangement"}, {"category": "Bobo Balloons", "file": "bobo.jpg", "alt": "Made With Love \u2014 rose and balloon arrangement", "caption": "Rose-filled bobo balloon"}, {"category": "Rose Bears", "file": "rosebear.jpg", "alt": "Made With Love \u2014 hand-made rose bear", "caption": "Hand-made rose bear"}];
+  var CATS = [{"name": "Wreaths", "icon": "\ud83c\udf42"}, {"name": "Hat Boxes", "icon": "\ud83c\udfa9"}, {"name": "Grave Pots", "icon": "\ud83c\udf3f"}, {"name": "Bobo Balloons", "icon": "\ud83c\udf88"}, {"name": "Rose Bears", "icon": "\ud83e\uddf8"}, {"name": "Christmas", "icon": "\ud83c\udf84"}];
+  var ITEMS = [{"category": "Hat Boxes", "file": "hatbox.jpg", "alt": "Made With Love \u2014 hat box rose arrangement", "caption": "Classic rose hat box arrangement"}, {"category": "Bobo Balloons", "file": "bobo.jpg", "alt": "Made With Love \u2014 rose and balloon arrangement", "caption": "Rose-filled bobo balloon"}, {"category": "Rose Bears", "file": "rosebear.jpg", "alt": "Made With Love \u2014 hand-made rose bear", "caption": "Hand-made rose bear"}, {"category": "Bobo Balloons", "file": "bobo-birthday.jpg", "alt": "Made With Love \u2014 purple birthday rose bouquet and personalised balloon gift set", "caption": "Birthday bouquet & personalised gift set"}, {"category": "Hat Boxes", "file": "hatbox-black.jpg", "alt": "Made With Love \u2014 black, grey and cream rose arrangement", "caption": "Black, grey & cream rose arrangement"}, {"category": "Wreaths", "file": "wreath-christmas.jpg", "alt": "Made With Love \u2014 light-up Christmas foliage wreath with berries and pinecones", "caption": "Light-up Christmas foliage wreath"}, {"category": "Christmas", "file": "christmas-balloons.jpg", "alt": "Made With Love \u2014 Christmas balloon wreath display with snow globe and elf", "caption": "Christmas balloon wreath display"}];
   var grid = document.getElementById('mwl-gallery-grid');
   var filterBtns = document.querySelectorAll('.filter-btn');
   var currentFilter = 'All';
