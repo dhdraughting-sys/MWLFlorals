@@ -29,15 +29,21 @@ HAS_PHOTO = {
 GALLERY_CATEGORIES = [
     {"name": "Wreaths", "icon": "\U0001F342"},
     {"name": "Hat Boxes", "icon": "\U0001F3A9"},
+    {"name": "Handbag Bouquets", "icon": "\U0001F45C"},
     {"name": "Grave Pots", "icon": "\U0001F33F"},
     {"name": "Bobo Balloons", "icon": "\U0001F388"},
+    {"name": "Bouquets", "icon": "\U0001F490"},
     {"name": "Rose Bears", "icon": "\U0001F9F8"},
 ]
 
 GALLERY_ITEMS = [
-    {"category": "Hat Boxes", "file": "hatbox.jpg", "alt": "Made With Love — hat box rose arrangement", "caption": "Classic rose hat box arrangement"},
-    {"category": "Bobo Balloons", "file": "bobo.jpg", "alt": "Made With Love — rose and balloon arrangement", "caption": "Rose-filled bobo balloon"},
-    {"category": "Rose Bears", "file": "rosebear.jpg", "alt": "Made With Love — hand-made rose bear", "caption": "Hand-made rose bear"},
+    {"category": "Hat Boxes", "file": "rosebear.jpg", "alt": "Made With Love — rose hat box arrangement", "caption": "Rose hat box arrangement"},
+    {"category": "Bouquets", "file": "bobo.jpg", "alt": "Made With Love — rose bouquet with balloon", "caption": "Rose bouquet with a balloon accent"},
+    {"category": "Handbag Bouquets", "file": "hatbox.jpg", "alt": "Made With Love — handbag bouquet arrangement", "caption": "Handbag bouquet arrangement"},
+    # Reuses the same photo already saved for the Price List's Summer Dream
+    # entry (images/catalogue/summer-dream-67fae52e.jpg) rather than
+    # needing a separate upload - one photo, shown in two places.
+    {"category": "Wreaths", "file": "catalogue/summer-dream-67fae52e.jpg", "alt": "Made With Love — Summer Dream wreath", "caption": "Summer Dream wreath"},
 ]
 
 # ---------------- PRICE LIST ----------------
@@ -856,24 +862,24 @@ HOME_FEATURED = f"""
     </div>
     <div class="prod-grid">
       <div class="prod-card">
-        {photo_img("hatbox", "Made With Love — hat box rose arrangement", "&#127873;")}
+        {photo_img("rosebear", "Made With Love — hat box rose arrangement", "&#127913;")}
         <div class="prod-body">
           <h3>Hat Boxes</h3>
           <p>Beautifully arranged artificial blooms in a decorative hat box &mdash; a stunning gift or table centrepiece.</p>
         </div>
       </div>
       <div class="prod-card">
-        {photo_img("bobo", "Made With Love — rose and balloon arrangement", "&#127880;")}
+        {photo_img("bobo", "Made With Love — rose bouquet with balloon", "&#128144;")}
         <div class="prod-body">
-          <h3>Bobo Balloons</h3>
-          <p>Flower-filled bobo balloons for birthdays, celebrations and gifts &mdash; a modern twist on a floral treat.</p>
+          <h3>Bouquets</h3>
+          <p>Hand-tied artificial bouquets, finished with a balloon accent for birthdays, celebrations and gifts.</p>
         </div>
       </div>
       <div class="prod-card">
-        {photo_img("rosebear", "Made With Love — hand-made rose bear", "&#129528;")}
+        {photo_img("hatbox", "Made With Love — handbag bouquet arrangement", "&#128092;")}
         <div class="prod-body">
-          <h3>Rose Bears</h3>
-          <p>Hand-made rose bears crafted from artificial roses &mdash; a keepsake gift that lasts far longer than real flowers.</p>
+          <h3>Handbag Bouquets</h3>
+          <p>A beautifully arranged bouquet presented in a decorative handbag-style box &mdash; a stylish gift with a lasting twist.</p>
         </div>
       </div>
     </div>
