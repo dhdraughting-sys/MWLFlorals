@@ -212,6 +212,32 @@
     .lightbox-next{right:8px;}
     .lightbox-close{top:10px;right:10px;width:38px;height:38px;}
   }
+
+  /* ---------------- Price List ---------------- */
+  .price-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:22px;}
+  .price-card{background:var(--card);border:1px solid #eee1d0;border-radius:var(--radius);overflow:hidden;transition:box-shadow .15s,transform .15s;}
+  .price-card:hover{box-shadow:0 14px 34px rgba(74,63,53,.14);transform:translateY(-3px);}
+  .price-photo{aspect-ratio:1/1;overflow:hidden;background:linear-gradient(135deg,var(--blush) 0%, #f3e3d8 55%, var(--sage) 100%);display:flex;align-items:center;justify-content:center;}
+  .price-photo .ph-icon{font-size:2.2rem;}
+  .price-photo.has-photo{background:none;}
+  .price-photo.has-photo img{width:100%;height:100%;object-fit:cover;}
+  .price-body{padding:16px 18px 20px;}
+  .price-cat{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--hessian-dark);}
+  .price-name{font-size:1.1rem;color:var(--ink);margin:6px 0 6px;}
+  .price-desc{font-size:.88rem;color:var(--ink-soft);margin-bottom:10px;}
+  .price-tag{font-size:1.15rem;font-weight:700;color:var(--hessian-dark);font-variant-numeric:tabular-nums;}
+  .price-note{text-align:center;color:var(--ink-soft);font-size:.82rem;margin-top:26px;}
+
+  @media print{
+    html,body,section,.arrangements{background:#fff !important;}
+    header.site-nav,footer,#mwl-chat-launcher,#mwl-chat-panel,.page-hero .eyebrow,.contact,.no-print{display:none !important;}
+    .page-hero{background:none;border:0;padding:0 0 20px;}
+    .page-hero h1{color:#4a3f35;}
+    .gallery-filters{display:none;}
+    .price-grid{grid-template-columns:repeat(2,1fr);gap:14px;}
+    .price-card{box-shadow:none;border:1px solid #ddd;break-inside:avoid;}
+    .price-card:hover{transform:none;box-shadow:none;}
+  }
 </style>
 </head>
 <body>
@@ -225,6 +251,7 @@
     <nav class="links">
       <a href="index.html">Home</a>
       <a href="portfolio.html">Portfolio</a>
+      <a href="pricelist.html">Price List</a>
       <a href="about.html" class="active">About</a>
       <a href="contact.html">Contact</a>
     </nav>
@@ -342,7 +369,7 @@ s0.parentNode.insertBefore(s1,s0);
     { topic: "Our Arrangements", keys: ["arrangement","product","make","wreath","hat box","grave pot","balloon","rose bear","portfolio"],
       a: "We make wreaths, hat box arrangements, grave pots, bobo balloons and hand-made rose bears — all with high-quality artificial flowers that keep their beauty all year round. See the Portfolio page for the full range." },
     { topic: "Ordering", keys: ["order","buy","price","cost","how do i"],
-      a: "Get in touch with what you're after — style, colours and any special dates — and we'll come back with pricing and options." },
+      a: "Check out our Price List page for current prices, then get in touch with what you're after — style, colours and any special dates — and we'll come back with options." },
     { topic: "Delivery & Collection", keys: ["deliver","collect","postage","ship"],
       a: "Local delivery and collection can be arranged — just ask when you get in touch." },
     { topic: "Custom Colours", keys: ["colour","color","custom","match"],

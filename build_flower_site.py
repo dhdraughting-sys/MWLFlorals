@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
+import base64
 import os
 import json
+import re
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 
@@ -37,6 +39,193 @@ GALLERY_ITEMS = [
     {"category": "Bobo Balloons", "file": "bobo.jpg", "alt": "Made With Love — rose and balloon arrangement", "caption": "Rose-filled bobo balloon"},
     {"category": "Rose Bears", "file": "rosebear.jpg", "alt": "Made With Love — hand-made rose bear", "caption": "Hand-made rose bear"},
 ]
+
+# ---------------- PRICE LIST ----------------
+# Drives the Price List page. Unlike the gallery above, this list isn't
+# hand-typed — it's generated from catalogue-data.json, an export from the
+# private "MWL Florals Catalogue" stock-tracking app (its own "Backup"
+# button). That app also tracks cost price, stock levels and supplier for
+# her own use, but load_catalogue_items() below only ever reads name,
+# category, price, description and photo out of it — cost/stock/supplier
+# never make it into this script's output, so there's no way for them to
+# accidentally end up on the public site.
+#
+# To update prices on the site: open the catalogue app, tap Backup, save
+# the downloaded file over catalogue-data.json in this folder, then
+# re-run this script and re-upload the changed pricelist.html + any new
+# files under images/catalogue/ to GitHub.
+
+CATALOGUE_CATEGORY_ICONS = {
+    "Wreaths": "\U0001F342",
+    "Hat Boxes": "\U0001F3A9",
+    "Grave Pots": "\U0001F33F",
+    "Bobo Balloons": "\U0001F388",
+    "Rose Bears": "\U0001F9F8",
+    "Christmas": "\U0001F384",
+    "Other": "\U0001F338",
+}
+CATALOGUE_CATEGORY_ORDER = list(CATALOGUE_CATEGORY_ICONS.keys())
+
+
+def _slugify(text):
+    text = re.sub(r"[^a-z0-9]+", "-", (text or "").lower()).strip("-")
+    return text or "item"
+
+
+def _save_catalogue_photo(images_dir, item_id, name, data_url):
+    """Decodes one item's embedded base64 photo (captured by the catalogue
+    app's own camera/photo-library picker) into a real image file under
+    images/catalogue/ — the same way every other photo on this site is
+    referenced, so this page weighs the same as any other page instead of
+    ballooning with inline base64 data. Returns the path to use in an
+    <img src>, relative to the site root, or None if there was no usable
+    photo to save."""
+    if not data_url or not data_url.startswith("data:image/"):
+        return None
+    try:
+        header, b64data = data_url.split(",", 1)
+        ext = "png" if "image/png" in header else "jpg"
+        filename = "{}-{}.{}".format(_slugify(name), (item_id or "0")[:8], ext)
+        with open(os.path.join(images_dir, filename), "wb") as f:
+            f.write(base64.b64decode(b64data))
+    except (ValueError, TypeError, OSError):
+        return None
+    return "catalogue/" + filename
+
+
+def load_catalogue_items():
+    """Reads catalogue-data.json (if present — its absence just means an
+    empty price list, not an error) and returns the PUBLIC-SAFE subset of
+    each item: name, category, price, description, photo. See the module
+    comment above for why cost/stock/supplier stop here."""
+    path = os.path.join(BASE, "catalogue-data.json")
+    if not os.path.exists(path):
+        return []
+    with open(path, "r", encoding="utf-8") as f:
+        raw_items = json.load(f)
+
+    images_dir = os.path.join(BASE, "images", "catalogue")
+    os.makedirs(images_dir, exist_ok=True)
+
+    items = []
+    for raw in raw_items:
+        name = (raw.get("name") or "").strip()
+        if not name:
+            continue  # nothing worth showing publicly without at least a name
+        items.append({
+            "name": name,
+            "category": raw.get("category") or "Other",
+            "price": raw.get("price"),
+            "description": (raw.get("description") or "").strip(),
+            "photo_file": _save_catalogue_photo(images_dir, raw.get("id"), name, raw.get("photo")),
+        })
+
+    items.sort(key=lambda it: it["name"].lower())
+    return items
+
+
+def _esc(s):
+    return (str(s) if s is not None else "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;").replace("'", "&#39;")
+
+
+def currency(n):
+    # None/blank shouldn't happen (price is a required field in the
+    # catalogue app), but showing "£0.00" for a missing value would read
+    # as a genuinely free item - "POA" is a safer fallback than a wrong price.
+    try:
+        return "£{:.2f}".format(float(n))
+    except (TypeError, ValueError):
+        return "POA"
+
+
+def pricelist_section(items):
+    """Builds the filterable Price List page from load_catalogue_items()'s
+    output. No lightbox/JSON re-render like the portfolio gallery — every
+    card is rendered server-side up front and the filter buttons just
+    show/hide by category, which keeps this simple since (unlike the
+    portfolio) every item always has a price to show, never a "coming
+    soon" placeholder category."""
+    if not items:
+        return """
+<section class="arrangements" id="price-list">
+  <div class="wrap">
+    <div class="gallery-empty">
+      <span class="ge-icon">&#127800;</span>
+      Prices are being added right now &mdash; check back soon, or get in touch for a quote.
+    </div>
+  </div>
+</section>
+"""
+
+    present = [c for c in CATALOGUE_CATEGORY_ORDER if any(it["category"] == c for it in items)]
+    present += sorted({it["category"] for it in items if it["category"] not in present})
+
+    filter_btns = "\n      ".join(
+        '<button type="button" class="filter-btn{active}" data-filter="{cat_attr}">{cat_label}</button>'.format(
+            active=" active" if i == 0 else "",
+            cat_attr=_esc(cat),
+            cat_label=_esc(cat),
+        )
+        for i, cat in enumerate(["All"] + present)
+    )
+
+    def card_html(it):
+        icon = CATALOGUE_CATEGORY_ICONS.get(it["category"], "\U0001F338")
+        photo_html = (
+            '<img src="images/{}" alt="Made With Love — {}" loading="lazy">'.format(_esc(it["photo_file"]), _esc(it["name"]))
+            if it["photo_file"] else
+            '<span class="ph-icon">{}</span>'.format(icon)
+        )
+        desc_html = '<p class="price-desc">{}</p>'.format(_esc(it["description"])) if it["description"] else ""
+        return """
+      <div class="price-card" data-category="{category}">
+        <div class="price-photo{has_photo}">{photo_html}</div>
+        <div class="price-body">
+          <span class="price-cat">{category}</span>
+          <h3 class="price-name">{name}</h3>
+          {desc_html}
+          <div class="price-tag">{price}</div>
+        </div>
+      </div>""".format(
+            category=_esc(it["category"]), has_photo=" has-photo" if it["photo_file"] else "",
+            photo_html=photo_html, name=_esc(it["name"]), desc_html=desc_html, price=currency(it["price"]),
+        )
+
+    return """
+<section class="arrangements" id="price-list">
+  <div class="wrap">
+    <div class="gallery-filters" id="mwl-price-filters">
+      {filter_btns}
+    </div>
+    <div class="price-grid" id="mwl-price-grid">{cards}
+    </div>
+    <div style="text-align:center;margin-top:30px;">
+      <button type="button" class="btn btn-secondary no-print" id="mwl-print-btn">&#128424;&#65039; Print / Save as PDF</button>
+    </div>
+    <p class="price-note no-print">Prices shown are correct as of today and may vary for custom colours or sizes &mdash; get in touch to confirm before ordering.</p>
+  </div>
+</section>
+
+<script>
+(function(){{
+  var filterBtns = document.querySelectorAll('#mwl-price-filters .filter-btn');
+  var cards = document.querySelectorAll('#mwl-price-grid .price-card');
+  filterBtns.forEach(function(btn) {{
+    btn.addEventListener('click', function() {{
+      filterBtns.forEach(function(b) {{ b.classList.remove('active'); }});
+      btn.classList.add('active');
+      var filter = btn.getAttribute('data-filter');
+      cards.forEach(function(card) {{
+        card.style.display = (filter === 'All' || card.dataset.category === filter) ? '' : 'none';
+      }});
+    }});
+  }});
+  var printBtn = document.getElementById('mwl-print-btn');
+  if (printBtn) printBtn.addEventListener('click', function() {{ window.print(); }});
+}})();
+</script>
+""".format(filter_btns=filter_btns, cards="".join(card_html(it) for it in items))
+
 
 CSS = """
   :root{
@@ -242,6 +431,32 @@ CSS = """
     .lightbox-next{right:8px;}
     .lightbox-close{top:10px;right:10px;width:38px;height:38px;}
   }
+
+  /* ---------------- Price List ---------------- */
+  .price-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:22px;}
+  .price-card{background:var(--card);border:1px solid #eee1d0;border-radius:var(--radius);overflow:hidden;transition:box-shadow .15s,transform .15s;}
+  .price-card:hover{box-shadow:0 14px 34px rgba(74,63,53,.14);transform:translateY(-3px);}
+  .price-photo{aspect-ratio:1/1;overflow:hidden;background:linear-gradient(135deg,var(--blush) 0%, #f3e3d8 55%, var(--sage) 100%);display:flex;align-items:center;justify-content:center;}
+  .price-photo .ph-icon{font-size:2.2rem;}
+  .price-photo.has-photo{background:none;}
+  .price-photo.has-photo img{width:100%;height:100%;object-fit:cover;}
+  .price-body{padding:16px 18px 20px;}
+  .price-cat{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--hessian-dark);}
+  .price-name{font-size:1.1rem;color:var(--ink);margin:6px 0 6px;}
+  .price-desc{font-size:.88rem;color:var(--ink-soft);margin-bottom:10px;}
+  .price-tag{font-size:1.15rem;font-weight:700;color:var(--hessian-dark);font-variant-numeric:tabular-nums;}
+  .price-note{text-align:center;color:var(--ink-soft);font-size:.82rem;margin-top:26px;}
+
+  @media print{
+    html,body,section,.arrangements{background:#fff !important;}
+    header.site-nav,footer,#mwl-chat-launcher,#mwl-chat-panel,.page-hero .eyebrow,.contact,.no-print{display:none !important;}
+    .page-hero{background:none;border:0;padding:0 0 20px;}
+    .page-hero h1{color:#4a3f35;}
+    .gallery-filters{display:none;}
+    .price-grid{grid-template-columns:repeat(2,1fr);gap:14px;}
+    .price-card{box-shadow:none;border:1px solid #ddd;break-inside:avoid;}
+    .price-card:hover{transform:none;box-shadow:none;}
+  }
 """
 
 def placeholder(icon="&#127800;", label="Photo coming soon"):
@@ -378,7 +593,7 @@ def gallery_section(categories, items):
 
 
 def nav_html(active):
-    items = [("index.html", "Home"), ("portfolio.html", "Portfolio"), ("about.html", "About"), ("contact.html", "Contact")]
+    items = [("index.html", "Home"), ("portfolio.html", "Portfolio"), ("pricelist.html", "Price List"), ("about.html", "About"), ("contact.html", "Contact")]
     ACTIVE_CLASS = ' class="active"'
     links = "\n".join(
         f'      <a href="{href}"{ACTIVE_CLASS if href == active else ""}>{label}</a>'
@@ -466,7 +681,7 @@ s0.parentNode.insertBefore(s1,s0);
     { topic: "Our Arrangements", keys: ["arrangement","product","make","wreath","hat box","grave pot","balloon","rose bear","portfolio"],
       a: "We make wreaths, hat box arrangements, grave pots, bobo balloons and hand-made rose bears — all with high-quality artificial flowers that keep their beauty all year round. See the Portfolio page for the full range." },
     { topic: "Ordering", keys: ["order","buy","price","cost","how do i"],
-      a: "Get in touch with what you're after — style, colours and any special dates — and we'll come back with pricing and options." },
+      a: "Check out our Price List page for current prices, then get in touch with what you're after — style, colours and any special dates — and we'll come back with options." },
     { topic: "Delivery & Collection", keys: ["deliver","collect","postage","ship"],
       a: "Local delivery and collection can be arranged — just ask when you get in touch." },
     { topic: "Custom Colours", keys: ["colour","color","custom","match"],
@@ -657,8 +872,9 @@ HOME_FEATURED = f"""
         </div>
       </div>
     </div>
-    <div style="text-align:center;margin-top:38px;">
+    <div style="text-align:center;margin-top:38px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
       <a href="portfolio.html" class="btn btn-primary">See the Full Portfolio</a>
+      <a href="pricelist.html" class="btn btn-secondary">View Price List</a>
     </div>
   </div>
 </section>
@@ -698,6 +914,10 @@ home_body = HOME_HERO + HOME_ABOUT_TEASER + HOME_FEATURED + WHY + HOME_CTA
 # ---------------- PORTFOLIO ----------------
 
 portfolio_body = gallery_section(GALLERY_CATEGORIES, GALLERY_ITEMS) + HOME_CTA
+
+# ---------------- PRICE LIST ----------------
+
+pricelist_body = pricelist_section(load_catalogue_items()) + HOME_CTA
 
 # ---------------- ABOUT ----------------
 
@@ -789,6 +1009,12 @@ pages = {
         "See the full range of handmade artificial flower arrangements from Made With Love — wreaths, hat boxes, grave pots, bobo balloons and rose bears.",
         "portfolio.html", portfolio_body,
         page_hero={"eyebrow":"What We Make","title":"Our Portfolio","sub":"Every piece handmade to order — ask about custom colours for any occasion."},
+    ),
+    "pricelist.html": page(
+        "Price List | Made With Love",
+        "Current prices for Made With Love's handmade artificial flower arrangements — wreaths, hat boxes, grave pots, bobo balloons and rose bears.",
+        "pricelist.html", pricelist_body,
+        page_hero={"eyebrow":"Prices","title":"Price List","sub":"Every piece handmade to order — get in touch for custom colours, sizes or dates."},
     ),
     "about.html": page(
         "Our Story | Made With Love",
