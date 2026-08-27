@@ -333,7 +333,12 @@
         visiblePhotos.push(it);
         var card = document.createElement('div');
         card.className = 'gallery-card';
-        card.innerHTML = '<span class="g-tag">' + it.category + '</span><div class="g-photo"><img src="images/' + it.file + '" alt="' + it.alt + '" loading="lazy"></div><div class="g-cap">' + it.caption + '</div>';
+        // Just the photo in the grid — no tag/caption text on top of it,
+        // since the Price List page is now what tells people the type of
+        // arrangement and what it's called. The category + caption are
+        // still there for anyone who taps a photo though - see
+        // showLightboxPhoto() below, which keeps setting lbCap's text.
+        card.innerHTML = '<div class="g-photo"><img src="images/' + it.file + '" alt="' + it.alt + '" loading="lazy"></div>';
         card.addEventListener('click', function() { openLightbox(idx); });
         grid.appendChild(card);
       });
