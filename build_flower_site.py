@@ -78,25 +78,43 @@ def _slugify(text):
     return text or "item"
 
 
-def _save_catalogue_photo(images_dir, item_id, name, data_url):
-    """Decodes one item's embedded base64 photo (captured by the catalogue
-    app's own camera/photo-library picker) into a real image file under
-    images/catalogue/ — the same way every other photo on this site is
-    referenced, so this page weighs the same as any other page instead of
-    ballooning with inline base64 data. Returns the path to use in an
-    <img src>, relative to the site root, or None if there was no usable
-    photo to save."""
+def _save_one_catalogue_photo(images_dir, item_id, name, data_url, suffix=""):
+    """Decodes one embedded base64 photo (captured by the catalogue app's
+    own camera/photo-library picker, already cropped to a square there)
+    into a real image file under images/catalogue/ — the same way every
+    other photo on this site is referenced, so this page weighs the same
+    as any other page instead of ballooning with inline base64 data.
+    Returns the path to use in an <img src>, relative to the site root,
+    or None if there was no usable photo to save."""
     if not data_url or not data_url.startswith("data:image/"):
         return None
     try:
         header, b64data = data_url.split(",", 1)
         ext = "png" if "image/png" in header else "jpg"
-        filename = "{}-{}.{}".format(_slugify(name), (item_id or "0")[:8], ext)
+        filename = "{}-{}{}.{}".format(_slugify(name), (item_id or "0")[:8], suffix, ext)
         with open(os.path.join(images_dir, filename), "wb") as f:
             f.write(base64.b64decode(b64data))
     except (ValueError, TypeError, OSError):
         return None
     return "catalogue/" + filename
+
+
+def _save_catalogue_photos(images_dir, item_id, name, raw):
+    """Same idea as _save_one_catalogue_photo, but for up to 3 photos per
+    item. Newer catalogue-app exports carry a "photos" list (added along
+    with the in-app crop/preview tool); older exports only ever had a
+    single "photo" field, so that's still read as a 1-photo fallback.
+    Returns a list of 1-3 site-relative image paths (possibly empty)."""
+    photos = raw.get("photos")
+    if not isinstance(photos, list) or not photos:
+        photos = [raw.get("photo")] if raw.get("photo") else []
+    paths = []
+    for i, data_url in enumerate(photos[:3]):
+        suffix = "" if i == 0 else "-{}".format(i + 1)
+        path = _save_one_catalogue_photo(images_dir, item_id, name, data_url, suffix)
+        if path:
+            paths.append(path)
+    return paths
 
 
 def load_catalogue_items():
@@ -123,7 +141,7 @@ def load_catalogue_items():
             "category": raw.get("category") or "Other",
             "price": raw.get("price"),
             "description": (raw.get("description") or "").strip(),
-            "photo_file": _save_catalogue_photo(images_dir, raw.get("id"), name, raw.get("photo")),
+            "photo_files": _save_catalogue_photos(images_dir, raw.get("id"), name, raw),
         })
 
     items.sort(key=lambda it: it["name"].lower())
@@ -177,15 +195,33 @@ def pricelist_section(items):
 
     def card_html(it):
         icon = CATALOGUE_CATEGORY_ICONS.get(it["category"], "\U0001F338")
-        photo_html = (
-            '<img src="images/{}" alt="Made With Love — {}" loading="lazy">'.format(_esc(it["photo_file"]), _esc(it["name"]))
-            if it["photo_file"] else
-            '<span class="ph-icon">{}</span>'.format(icon)
-        )
+        photos = it["photo_files"]
+        if not photos:
+            photo_html = '<span class="ph-icon">{}</span>'.format(icon)
+        elif len(photos) == 1:
+            photo_html = '<img src="images/{}" alt="Made With Love — {}" loading="lazy">'.format(_esc(photos[0]), _esc(it["name"]))
+        else:
+            # More than one photo: a small swipeable gallery (native touch
+            # scroll-snap, no JS needed for the swipe itself) with dots that
+            # show and set the current slide.
+            slides = "".join(
+                '<img src="images/{}" alt="Made With Love — {} (photo {} of {})" loading="lazy">'.format(
+                    _esc(p), _esc(it["name"]), i + 1, len(photos)
+                )
+                for i, p in enumerate(photos)
+            )
+            dots = "".join(
+                '<span class="g-dot{active}" data-i="{i}"></span>'.format(active=" active" if i == 0 else "", i=i)
+                for i in range(len(photos))
+            )
+            photo_html = (
+                '<div class="price-gallery">{slides}</div>'
+                '<div class="g-dots">{dots}</div>'
+            ).format(slides=slides, dots=dots)
         desc_html = '<p class="price-desc">{}</p>'.format(_esc(it["description"])) if it["description"] else ""
         return """
       <div class="price-card" data-category="{category}">
-        <div class="price-photo{has_photo}">{photo_html}</div>
+        <div class="price-photo{has_photo}{multi}">{photo_html}</div>
         <div class="price-body">
           <span class="price-cat">{category}</span>
           <h3 class="price-name">{name}</h3>
@@ -193,7 +229,8 @@ def pricelist_section(items):
           <div class="price-tag">{price}</div>
         </div>
       </div>""".format(
-            category=_esc(it["category"]), has_photo=" has-photo" if it["photo_file"] else "",
+            category=_esc(it["category"]), has_photo=" has-photo" if photos else "",
+            multi=" multi-photo" if len(photos) > 1 else "",
             photo_html=photo_html, name=_esc(it["name"]), desc_html=desc_html, price=currency(it["price"]),
         )
 
@@ -228,6 +265,30 @@ def pricelist_section(items):
   }});
   var printBtn = document.getElementById('mwl-print-btn');
   if (printBtn) printBtn.addEventListener('click', function() {{ window.print(); }});
+
+  // Multi-photo cards: dots reflect the current swiped-to slide, and are
+  // themselves clickable to jump straight to a photo (in case someone's
+  // on a mouse/trackpad rather than swiping with a finger).
+  document.querySelectorAll('.price-photo.multi-photo').forEach(function(wrap) {{
+    var gallery = wrap.querySelector('.price-gallery');
+    var dots = wrap.querySelectorAll('.g-dot');
+    if (!gallery || !dots.length) return;
+    var syncTimer = null;
+    gallery.addEventListener('scroll', function() {{
+      if (syncTimer) clearTimeout(syncTimer);
+      syncTimer = setTimeout(function() {{
+        var i = Math.round(gallery.scrollLeft / gallery.clientWidth);
+        dots.forEach(function(d, di) {{ d.classList.toggle('active', di === i); }});
+      }}, 60);
+    }}, {{ passive: true }});
+    dots.forEach(function(dot) {{
+      dot.style.pointerEvents = 'auto';
+      dot.style.cursor = 'pointer';
+      dot.addEventListener('click', function() {{
+        gallery.scrollTo({{ left: Number(dot.dataset.i) * gallery.clientWidth, behavior: 'smooth' }});
+      }});
+    }});
+  }});
 }})();
 </script>
 """.format(filter_btns=filter_btns, cards="".join(card_html(it) for it in items))
@@ -442,10 +503,17 @@ CSS = """
   .price-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:22px;}
   .price-card{background:var(--card);border:1px solid #eee1d0;border-radius:var(--radius);overflow:hidden;transition:box-shadow .15s,transform .15s;}
   .price-card:hover{box-shadow:0 14px 34px rgba(74,63,53,.14);transform:translateY(-3px);}
-  .price-photo{aspect-ratio:1/1;overflow:hidden;background:linear-gradient(135deg,var(--blush) 0%, #f3e3d8 55%, var(--sage) 100%);display:flex;align-items:center;justify-content:center;}
+  .price-photo{aspect-ratio:1/1;overflow:hidden;background:linear-gradient(135deg,var(--blush) 0%, #f3e3d8 55%, var(--sage) 100%);display:flex;align-items:center;justify-content:center;position:relative;}
   .price-photo .ph-icon{font-size:2.2rem;}
   .price-photo.has-photo{background:none;}
   .price-photo.has-photo img{width:100%;height:100%;object-fit:cover;}
+  .price-photo.multi-photo{display:block;}
+  .price-gallery{display:flex;width:100%;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .price-gallery::-webkit-scrollbar{display:none;}
+  .price-gallery img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:start;}
+  .g-dots{position:absolute;left:0;right:0;bottom:8px;display:flex;justify-content:center;gap:6px;pointer-events:none;}
+  .g-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 0 1px rgba(0,0,0,.12);transition:background .15s,transform .15s;}
+  .g-dot.active{background:#fff;transform:scale(1.25);}
   .price-body{padding:16px 18px 20px;}
   .price-cat{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--hessian-dark);}
   .price-name{font-size:1.1rem;color:var(--ink);margin:6px 0 6px;}
