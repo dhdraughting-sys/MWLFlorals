@@ -544,6 +544,41 @@ def photo_img(key, alt, icon="&#127800;"):
     return f'<div class="placeholder-img has-photo"><img src="images/{key}.jpg" alt="{alt}" loading="lazy"></div>'
 
 
+def merged_gallery_categories(catalogue_items):
+    """GALLERY_CATEGORIES (hand-curated — keeps its order, icons and
+    "coming soon" placeholders for types with no photo yet) plus any
+    catalogue category that isn't already covered, so a catalogue item
+    filed under something like "Christmas" or "Other" still gets a
+    heading to sit under instead of being silently dropped."""
+    existing_names = {c["name"] for c in GALLERY_CATEGORIES}
+    extra = []
+    for cat_name in CATALOGUE_CATEGORY_ORDER:
+        if cat_name in existing_names:
+            continue
+        if any(it["category"] == cat_name for it in catalogue_items):
+            extra.append({"name": cat_name, "icon": CATALOGUE_CATEGORY_ICONS[cat_name]})
+    return GALLERY_CATEGORIES + extra
+
+
+def catalogue_gallery_items(catalogue_items):
+    """Turns each catalogue item's saved photo(s) into Portfolio gallery
+    entries, filed under its own category — the same photos already
+    shown on the Price List, so nothing needs a separate upload just to
+    also appear in the Portfolio."""
+    out = []
+    for it in catalogue_items:
+        photos = it["photo_files"]
+        for i, path in enumerate(photos):
+            caption = it["name"] if len(photos) == 1 else f'{it["name"]} ({i + 1}/{len(photos)})'
+            out.append({
+                "category": it["category"],
+                "file": path,
+                "alt": f'Made With Love — {it["name"]}',
+                "caption": caption,
+            })
+    return out
+
+
 def gallery_section(categories, items):
     """Builds the filterable Portfolio gallery + lightbox. Data-driven from GALLERY_CATEGORIES /
     GALLERY_ITEMS at the top of this file — see the comment there for how to add a photo."""
@@ -990,13 +1025,20 @@ HOME_CTA = """
 
 home_body = HOME_HERO + HOME_ABOUT_TEASER + HOME_FEATURED + WHY + HOME_CTA
 
+# Loaded once and shared by the Portfolio gallery and the Price List below,
+# so every catalogue photo only gets decoded/saved to images/catalogue/ once.
+_catalogue_items = load_catalogue_items()
+
 # ---------------- PORTFOLIO ----------------
 
-portfolio_body = gallery_section(GALLERY_CATEGORIES, GALLERY_ITEMS) + HOME_CTA
+portfolio_body = gallery_section(
+    merged_gallery_categories(_catalogue_items),
+    GALLERY_ITEMS + catalogue_gallery_items(_catalogue_items),
+) + HOME_CTA
 
 # ---------------- PRICE LIST ----------------
 
-pricelist_body = pricelist_section(load_catalogue_items()) + HOME_CTA
+pricelist_body = pricelist_section(_catalogue_items) + HOME_CTA
 
 # ---------------- ABOUT ----------------
 
