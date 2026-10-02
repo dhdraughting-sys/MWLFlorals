@@ -235,6 +235,29 @@
   .price-tag{font-size:1.15rem;font-weight:700;color:var(--hessian-dark);font-variant-numeric:tabular-nums;}
   .price-note{text-align:center;color:var(--ink-soft);font-size:.82rem;margin-top:26px;}
 
+  /* ---------------- News / Blog ---------------- */
+  .news-teaser{background:var(--cream);}
+  .news-teaser-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:26px;}
+  .news-teaser-card{background:var(--card);border:1px solid #eee1d0;border-radius:var(--radius);overflow:hidden;transition:box-shadow .15s,transform .15s;}
+  .news-teaser-card:hover{box-shadow:0 14px 34px rgba(74,63,53,.12);transform:translateY(-3px);}
+  .news-teaser-photo{aspect-ratio:4/3;overflow:hidden;}
+  .news-teaser-photo img{width:100%;height:100%;object-fit:cover;}
+  .news-teaser-body{padding:20px 22px 24px;}
+  .news-teaser-body h3{font-size:1.15rem;color:var(--hessian-dark);margin-bottom:8px;}
+  .post-meta{font-size:.82rem;color:var(--ink-soft);margin-bottom:10px;}
+  .news-teaser-link{display:inline-block;margin-top:4px;font-size:.88rem;font-weight:700;color:var(--hessian-dark);text-decoration:none;}
+  .news-teaser-link:hover{text-decoration:underline;}
+
+  .news-list .wrap{max-width:720px;}
+  .post-card{background:var(--card);border:1px solid #eee1d0;border-radius:var(--radius);overflow:hidden;margin-bottom:32px;}
+  .post-card:last-child{margin-bottom:0;}
+  .post-photo{aspect-ratio:16/9;overflow:hidden;}
+  .post-photo img{width:100%;height:100%;object-fit:cover;}
+  .post-body{padding:28px clamp(20px,5vw,34px) 32px;}
+  .post-body h2{font-size:1.6rem;color:var(--hessian-dark);margin-bottom:8px;}
+  .post-body p{color:var(--ink);font-size:1rem;margin-bottom:14px;}
+  .post-body p:last-child{margin-bottom:0;}
+
   @media print{
     html,body,section,.arrangements{background:#fff !important;}
     header.site-nav,footer,#mwl-chat-launcher,#mwl-chat-panel,.page-hero .eyebrow,.contact,.no-print{display:none !important;}
@@ -259,6 +282,7 @@
       <a href="index.html" class="active">Home</a>
       <a href="portfolio.html">Portfolio</a>
       <a href="pricelist.html">Price List</a>
+      <a href="news.html">News</a>
       <a href="about.html">About</a>
       <a href="contact.html">Contact</a>
     </nav>
@@ -363,7 +387,7 @@
     <div class="brand">Made With Love</div>
     <div>Handmade Artificial Flower Arrangements</div>
     <div class="flinks">
-      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="about.html">About</a><a href="contact.html">Contact</a>
+      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a>
     </div>
   </div>
 </footer>

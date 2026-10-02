@@ -184,6 +184,81 @@ def load_catalogue_items():
     return items
 
 
+# ---------------- NEWS / BLOG ----------------
+# Drives the News page + the Home page's "Latest News" teaser. Like the
+# price list, this isn't hand-typed — it's generated from blog-posts.json,
+# written by the "Blog Posts" section of the MWL Catalogue app's Website
+# Sync feature. Each post is a title, body text, an optional single photo
+# (watermarked the same as every other site photo), a date and who
+# posted it (Marie or Darren).
+
+def _save_blog_photo(images_dir, post_id, title, data_url):
+    """Same idea as _save_one_catalogue_photo, but for a single blog-post
+    photo saved under images/blog/. Returns a site-relative image path,
+    or None if there's no usable photo."""
+    if not data_url or not data_url.startswith("data:image/"):
+        return None
+    try:
+        header, b64data = data_url.split(",", 1)
+        is_png = "image/png" in header
+        filename = "{}-{}.jpg".format(_slugify(title), (post_id or "0")[:8])
+        raw_bytes = base64.b64decode(b64data)
+        watermarked = watermark_bytes(raw_bytes, is_png=is_png)
+        with open(os.path.join(images_dir, filename), "wb") as f:
+            f.write(watermarked)
+    except (ValueError, TypeError, OSError):
+        return None
+    return "blog/" + filename
+
+
+def _cleanup_stale_blog_photos(images_dir, blog_posts):
+    """Deletes any file in images/blog/ that no current post points at
+    any more — mainly a photo left behind by an edited or deleted post.
+    Safe no-op if the folder is missing."""
+    if not os.path.isdir(images_dir):
+        return
+    keep = set()
+    for p in blog_posts:
+        if p["photo_file"]:
+            keep.add(os.path.basename(p["photo_file"]))
+    for fname in os.listdir(images_dir):
+        if fname not in keep:
+            os.remove(os.path.join(images_dir, fname))
+            print("removed stale blog photo:", fname)
+
+
+def load_blog_posts():
+    """Reads blog-posts.json (if present — its absence just means no news
+    content yet, not an error) and returns posts newest first."""
+    path = os.path.join(BASE, "blog-posts.json")
+    if not os.path.exists(path):
+        return []
+    with open(path, "r", encoding="utf-8") as f:
+        raw_posts = json.load(f)
+
+    images_dir = os.path.join(BASE, "images", "blog")
+    os.makedirs(images_dir, exist_ok=True)
+
+    posts = []
+    for raw in raw_posts:
+        title = (raw.get("title") or "").strip()
+        body = (raw.get("body") or "").strip()
+        if not title or not body:
+            continue  # nothing worth publishing without both
+        post_id = raw.get("id") or _slugify(title)
+        posts.append({
+            "id": post_id,
+            "title": title,
+            "body": body,
+            "date": (raw.get("date") or "").strip(),
+            "author": (raw.get("author") or "").strip(),
+            "photo_file": _save_blog_photo(images_dir, post_id, title, raw.get("photo")),
+        })
+
+    posts.sort(key=lambda p: p["date"], reverse=True)
+    return posts
+
+
 def _esc(s):
     return (str(s) if s is not None else "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;").replace("'", "&#39;")
 
@@ -557,6 +632,29 @@ CSS = """
   .price-tag{font-size:1.15rem;font-weight:700;color:var(--hessian-dark);font-variant-numeric:tabular-nums;}
   .price-note{text-align:center;color:var(--ink-soft);font-size:.82rem;margin-top:26px;}
 
+  /* ---------------- News / Blog ---------------- */
+  .news-teaser{background:var(--cream);}
+  .news-teaser-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:26px;}
+  .news-teaser-card{background:var(--card);border:1px solid #eee1d0;border-radius:var(--radius);overflow:hidden;transition:box-shadow .15s,transform .15s;}
+  .news-teaser-card:hover{box-shadow:0 14px 34px rgba(74,63,53,.12);transform:translateY(-3px);}
+  .news-teaser-photo{aspect-ratio:4/3;overflow:hidden;}
+  .news-teaser-photo img{width:100%;height:100%;object-fit:cover;}
+  .news-teaser-body{padding:20px 22px 24px;}
+  .news-teaser-body h3{font-size:1.15rem;color:var(--hessian-dark);margin-bottom:8px;}
+  .post-meta{font-size:.82rem;color:var(--ink-soft);margin-bottom:10px;}
+  .news-teaser-link{display:inline-block;margin-top:4px;font-size:.88rem;font-weight:700;color:var(--hessian-dark);text-decoration:none;}
+  .news-teaser-link:hover{text-decoration:underline;}
+
+  .news-list .wrap{max-width:720px;}
+  .post-card{background:var(--card);border:1px solid #eee1d0;border-radius:var(--radius);overflow:hidden;margin-bottom:32px;}
+  .post-card:last-child{margin-bottom:0;}
+  .post-photo{aspect-ratio:16/9;overflow:hidden;}
+  .post-photo img{width:100%;height:100%;object-fit:cover;}
+  .post-body{padding:28px clamp(20px,5vw,34px) 32px;}
+  .post-body h2{font-size:1.6rem;color:var(--hessian-dark);margin-bottom:8px;}
+  .post-body p{color:var(--ink);font-size:1rem;margin-bottom:14px;}
+  .post-body p:last-child{margin-bottom:0;}
+
   @media print{
     html,body,section,.arrangements{background:#fff !important;}
     header.site-nav,footer,#mwl-chat-launcher,#mwl-chat-panel,.page-hero .eyebrow,.contact,.no-print{display:none !important;}
@@ -742,8 +840,115 @@ def gallery_section(categories, items):
 """
 
 
+def _post_anchor(post):
+    return "post-" + _slugify(post["title"]) + "-" + (post["id"] or "")[:6]
+
+
+def _format_post_date(date_str):
+    """date_str is "YYYY-MM-DD" from the app's date input; rendered as
+    "3 October 2026" when parseable, shown as-is otherwise rather than
+    hidden (a post is still worth a date even if the format is odd)."""
+    import datetime
+    if not date_str:
+        return ""
+    try:
+        d = datetime.datetime.strptime(date_str, "%Y-%m-%d")
+        return "{} {} {}".format(d.day, d.strftime("%B"), d.year)
+    except (ValueError, TypeError):
+        return date_str
+
+
+def blog_post_card(post):
+    anchor = _post_anchor(post)
+    photo_html = ""
+    if post["photo_file"]:
+        photo_html = '<div class="post-photo"><img src="images/{}" alt="{}" loading="lazy"></div>'.format(
+            post["photo_file"], _esc(post["title"])
+        )
+    meta_bits = []
+    date_label = _format_post_date(post["date"])
+    if date_label:
+        meta_bits.append(_esc(date_label))
+    if post["author"]:
+        meta_bits.append("by " + _esc(post["author"]))
+    meta_html = ""
+    if meta_bits:
+        meta_html = '<div class="post-meta">{}</div>'.format(" &middot; ".join(meta_bits))
+    body_html = "".join(
+        "<p>{}</p>".format(_esc(para).replace("\n", "<br>"))
+        for para in post["body"].split("\n\n") if para.strip()
+    )
+    return """
+<article class="post-card" id="{anchor}">
+  {photo_html}
+  <div class="post-body">
+    <h2>{title}</h2>
+    {meta_html}
+    {body_html}
+  </div>
+</article>
+""".format(anchor=anchor, photo_html=photo_html, title=_esc(post["title"]), meta_html=meta_html, body_html=body_html)
+
+
+def news_body(posts):
+    if not posts:
+        return """
+<section class="news-list">
+  <div class="wrap" style="text-align:center;padding:50px 0;">
+    <p style="color:var(--ink-soft);font-size:1.05rem;">No news yet &mdash; check back soon.</p>
+  </div>
+</section>
+"""
+    cards = "".join(blog_post_card(p) for p in posts)
+    return """
+<section class="news-list">
+  <div class="wrap">{cards}</div>
+</section>
+""".format(cards=cards)
+
+
+def blog_teaser_section(posts):
+    """Only rendered when there's at least one post, same "no coming soon
+    placeholders" approach as the Price List's category tabs."""
+    if not posts:
+        return ""
+    cards = []
+    for p in posts[:3]:
+        photo_html = ""
+        if p["photo_file"]:
+            photo_html = '<div class="news-teaser-photo"><img src="images/{}" alt="{}" loading="lazy"></div>'.format(
+                p["photo_file"], _esc(p["title"])
+            )
+        date_label = _format_post_date(p["date"])
+        meta_html = '<div class="post-meta">{}</div>'.format(_esc(date_label)) if date_label else ""
+        cards.append("""
+<div class="news-teaser-card">
+  {photo_html}
+  <div class="news-teaser-body">
+    <h3>{title}</h3>
+    {meta_html}
+    <a href="news.html#{anchor}" class="news-teaser-link">Read more &rarr;</a>
+  </div>
+</div>
+""".format(photo_html=photo_html, title=_esc(p["title"]), meta_html=meta_html, anchor=_post_anchor(p)))
+    return """
+<section class="news-teaser" id="news-teaser">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">What's New</span>
+      <h2>Latest News</h2>
+    </div>
+    <div class="news-teaser-grid">{cards}</div>
+    <div style="text-align:center;margin-top:28px;">
+      <a href="news.html" class="btn btn-secondary">See All News</a>
+    </div>
+  </div>
+</section>
+""".format(cards="".join(cards))
+
+
 def nav_html(active):
-    items = [("index.html", "Home"), ("portfolio.html", "Portfolio"), ("pricelist.html", "Price List"), ("about.html", "About"), ("contact.html", "Contact")]
+    items = [("index.html", "Home"), ("portfolio.html", "Portfolio"), ("pricelist.html", "Price List"), ("news.html", "News"), ("about.html", "About"), ("contact.html", "Contact")]
     ACTIVE_CLASS = ' class="active"'
     links = "\n".join(
         f'      <a href="{href}"{ACTIVE_CLASS if href == active else ""}>{label}</a>'
@@ -770,7 +975,7 @@ FOOTER = """
     <div class="brand">Made With Love</div>
     <div>Handmade Artificial Flower Arrangements</div>
     <div class="flinks">
-      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="about.html">About</a><a href="contact.html">Contact</a>
+      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a>
     </div>
   </div>
 </footer>
@@ -1059,12 +1264,16 @@ HOME_CTA = """
 </section>
 """
 
-home_body = HOME_HERO + HOME_ABOUT_TEASER + HOME_FEATURED + WHY + HOME_CTA
-
 # Loaded once and shared by the Portfolio gallery and the Price List below,
 # so every catalogue photo only gets decoded/saved to images/catalogue/ once.
 _catalogue_items = load_catalogue_items()
 _cleanup_stale_catalogue_photos(os.path.join(BASE, "images", "catalogue"), _catalogue_items)
+
+# Loaded once and shared by the Home page teaser and the News page below.
+_blog_posts = load_blog_posts()
+_cleanup_stale_blog_photos(os.path.join(BASE, "images", "blog"), _blog_posts)
+
+home_body = HOME_HERO + HOME_ABOUT_TEASER + HOME_FEATURED + blog_teaser_section(_blog_posts) + WHY + HOME_CTA
 
 # ---------------- PORTFOLIO ----------------
 
@@ -1182,6 +1391,12 @@ pages = {
         "Current prices for Made With Love's handmade artificial flower arrangements — wreaths, hat boxes, grave pots, bobo balloons and rose bears.",
         "pricelist.html", pricelist_body,
         page_hero={"eyebrow":"Prices","title":"Price List","sub":"Every piece handmade to order — get in touch for custom colours, sizes or dates."},
+    ),
+    "news.html": page(
+        "News | Made With Love",
+        "The latest news and updates from Made With Love — new arrangements, seasonal ranges and what's happening in the workshop.",
+        "news.html", news_body(_blog_posts),
+        page_hero={"eyebrow":"What's New","title":"News & Updates","sub":"The latest from Made With Love."},
     ),
     "about.html": page(
         "Our Story | Made With Love",

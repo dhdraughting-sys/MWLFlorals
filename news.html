@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contact | Made With Love</title>
-<meta name="description" content="Get in touch with Made With Love to talk about your handmade artificial flower arrangement — wreaths, hat boxes, grave pots, bobo balloons and rose bears.">
+<title>News | Made With Love</title>
+<meta name="description" content="The latest news and updates from Made With Love — new arrangements, seasonal ranges and what's happening in the workshop.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -282,9 +282,9 @@
       <a href="index.html">Home</a>
       <a href="portfolio.html">Portfolio</a>
       <a href="pricelist.html">Price List</a>
-      <a href="news.html">News</a>
+      <a href="news.html" class="active">News</a>
       <a href="about.html">About</a>
-      <a href="contact.html" class="active">Contact</a>
+      <a href="contact.html">Contact</a>
     </nav>
     <a href="contact.html" class="nav-cta">Get in Touch</a>
   </div>
@@ -293,83 +293,18 @@
 
 <section class="page-hero">
   <div class="wrap">
-    <span class="eyebrow">Contact</span>
-    <h1>Let's Talk</h1>
-    <p>Message us directly via the form below or the chat button, and we'll get back to you.</p>
+    <span class="eyebrow">What's New</span>
+    <h1>News & Updates</h1>
+    <p>The latest from Made With Love.</p>
   </div>
 </section>
 
 
-<section class="contact" id="contact">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fffaf3;">Get in touch</span>
-      <h2>Let's talk about your arrangement</h2>
-      <p>Tell us what you have in mind &mdash; style, colours, and any special dates &mdash; or message us directly using the chat button in the corner.</p>
-    </div>
-    <div class="contact-rows">
-      <div class="contact-row">
-        <div class="icon">&#9993;&#65039;</div>
-        <div>
-          <div class="label">Email</div>
-          <div class="val"><a href="mailto:info@mwlflorals.co.uk">info@mwlflorals.co.uk</a></div>
-        </div>
-      </div>
-    </div>
-    <form class="contact-form" id="mwl-contact-form">
-      <input type="hidden" name="access_key" value="5f546492-e8a0-47b9-ba5b-e9a3423e9e7b">
-      <input type="hidden" name="subject" value="New enquiry from the Made With Love website">
-      <input type="hidden" name="from_name" value="Made With Love Website">
-      <input type="checkbox" name="botcheck" class="mwl-honeypot" tabindex="-1" autocomplete="off">
-      <label for="mf-name">Your Name</label>
-      <input type="text" id="mf-name" name="name" required>
-      <label for="mf-email">Email</label>
-      <input type="email" id="mf-email" name="email" required>
-      <label for="mf-message">What are you after?</label>
-      <textarea id="mf-message" name="message" placeholder="Tell us the occasion, colours, and any dates that matter..."></textarea>
-      <button type="submit" class="btn btn-primary" id="mf-submit">Send Enquiry</button>
-      <div class="form-status" id="mf-status" role="status" aria-live="polite"></div>
-    </form>
+<section class="news-list">
+  <div class="wrap" style="text-align:center;padding:50px 0;">
+    <p style="color:var(--ink-soft);font-size:1.05rem;">No news yet &mdash; check back soon.</p>
   </div>
 </section>
-<script>
-(function(){
-  var form = document.getElementById('mwl-contact-form');
-  if(!form) return;
-  var status = document.getElementById('mf-status');
-  var btn = document.getElementById('mf-submit');
-  form.addEventListener('submit', function(e){
-    e.preventDefault();
-    btn.disabled = true;
-    btn.textContent = 'Sending...';
-    status.className = 'form-status';
-    status.textContent = '';
-    var formData = new FormData(form);
-    var payload = Object.fromEntries(formData.entries());
-    fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-      body: JSON.stringify(payload)
-    }).then(function(res){ return res.json(); }).then(function(data){
-      if (data.success) {
-        status.className = 'form-status success';
-        status.textContent = "Thanks \u2014 your message is on its way. We'll be in touch soon.";
-        form.reset();
-      } else {
-        status.className = 'form-status error';
-        status.textContent = 'Something went wrong sending that. Please try again, or message us via the chat button.';
-      }
-      btn.disabled = false;
-      btn.textContent = 'Send Enquiry';
-    }).catch(function(){
-      status.className = 'form-status error';
-      status.textContent = 'Something went wrong sending that. Please try again, or message us via the chat button.';
-      btn.disabled = false;
-      btn.textContent = 'Send Enquiry';
-    });
-  });
-})();
-</script>
 
 
 <footer>
