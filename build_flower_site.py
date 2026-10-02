@@ -73,6 +73,8 @@ CATALOGUE_CATEGORY_ICONS = {
     "Grave Pots": "\U0001F33F",
     "Bobo Balloons": "\U0001F388",
     "Rose Bears": "\U0001F9F8",
+    "Envelopes": "\U0001F48C",
+    "Halloween": "\U0001F383",
     "Christmas": "\U0001F384",
     "Other": "\U0001F338",
 }
