@@ -4,6 +4,8 @@ import os
 import json
 import re
 
+from watermark import watermark_bytes
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 
 # Which product photos actually exist yet (images/<key>.jpg) — flip to True once uploaded
@@ -20,9 +22,13 @@ HAS_PHOTO = {
 # ---------------- PORTFOLIO GALLERY ----------------
 # This drives the full Portfolio page gallery (filters + lightbox), which is built to
 # hold lots of photos over time. To add a new photo:
-#   1. Put the image file in images/ (e.g. images/hatbox-2.jpg)
-#   2. Add one entry to GALLERY_ITEMS below (category must match a name in GALLERY_CATEGORIES)
-#   3. Re-run this script and re-upload the new image + the changed portfolio.html to GitHub
+#   1. Watermark it: python3 watermark.py images/hatbox-2.jpg
+#      (stamps the "Made With Love" diagonal watermark used across the site —
+#      catalogue photos get this automatically on every rebuild, but a photo
+#      added here by hand needs this one extra step first)
+#   2. Put the (now watermarked) image file in images/ (e.g. images/hatbox-2.jpg)
+#   3. Add one entry to GALLERY_ITEMS below (category must match a name in GALLERY_CATEGORIES)
+#   4. Re-run this script and re-upload the new image + the changed portfolio.html to GitHub
 # That's it — the filter tabs, grid layout and "coming soon" placeholders all update
 # automatically; nothing else needs to change.
 
@@ -90,10 +96,14 @@ def _save_one_catalogue_photo(images_dir, item_id, name, data_url, suffix=""):
         return None
     try:
         header, b64data = data_url.split(",", 1)
-        ext = "png" if "image/png" in header else "jpg"
-        filename = "{}-{}{}.{}".format(_slugify(name), (item_id or "0")[:8], suffix, ext)
+        is_png = "image/png" in header
+        # Always saved out as .jpg: watermark_bytes re-encodes to JPEG
+        # regardless of the source format, so the extension must match.
+        filename = "{}-{}{}.jpg".format(_slugify(name), (item_id or "0")[:8], suffix)
+        raw_bytes = base64.b64decode(b64data)
+        watermarked = watermark_bytes(raw_bytes, is_png=is_png)
         with open(os.path.join(images_dir, filename), "wb") as f:
-            f.write(base64.b64decode(b64data))
+            f.write(watermarked)
     except (ValueError, TypeError, OSError):
         return None
     return "catalogue/" + filename
