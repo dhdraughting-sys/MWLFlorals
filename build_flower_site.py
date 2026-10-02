@@ -129,6 +129,30 @@ def _save_catalogue_photos(images_dir, item_id, name, raw):
     return paths
 
 
+def _cleanup_stale_catalogue_photos(images_dir, catalogue_items):
+    """Deletes any file in images/catalogue/ that nothing on the site
+    actually points at any more - mainly photos left behind by an item
+    that's since been deleted in the catalogue app. Keeps anything a
+    current catalogue item's photo_files lists, plus anything hand-
+    referenced from GALLERY_ITEMS (e.g. the Portfolio's Summer Dream
+    entry, which points at a catalogue photo without that item still
+    being in catalogue-data.json). Safe no-op if the folder is missing."""
+    if not os.path.isdir(images_dir):
+        return
+    keep = set()
+    for it in catalogue_items:
+        for p in it["photo_files"]:
+            keep.add(os.path.basename(p))
+    for gi in GALLERY_ITEMS:
+        f = gi.get("file", "")
+        if f.startswith("catalogue/"):
+            keep.add(os.path.basename(f))
+    for fname in os.listdir(images_dir):
+        if fname not in keep:
+            os.remove(os.path.join(images_dir, fname))
+            print("removed stale catalogue photo:", fname)
+
+
 def load_catalogue_items():
     """Reads catalogue-data.json (if present — its absence just means an
     empty price list, not an error) and returns the PUBLIC-SAFE subset of
@@ -1040,6 +1064,7 @@ home_body = HOME_HERO + HOME_ABOUT_TEASER + HOME_FEATURED + WHY + HOME_CTA
 # Loaded once and shared by the Portfolio gallery and the Price List below,
 # so every catalogue photo only gets decoded/saved to images/catalogue/ once.
 _catalogue_items = load_catalogue_items()
+_cleanup_stale_catalogue_photos(os.path.join(BASE, "images", "catalogue"), _catalogue_items)
 
 # ---------------- PORTFOLIO ----------------
 
