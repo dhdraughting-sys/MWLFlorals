@@ -1,0 +1,51 @@
+name: Rebuild site from catalogue data
+
+# Fires whenever catalogue-data.json changes on main - which is exactly
+# what the MWL Catalogue app's "Website Sync" does when a flower is
+# added, edited or deleted. Runs the same build_flower_site.py used
+# locally, which decodes each item's photos, watermarks them, writes
+# them into images/catalogue/, removes any now-unused photo files, and
+# regenerates index.html/portfolio.html/pricelist.html/about.html/
+# contact.html - then commits whatever changed, straight back to main.
+#
+# Requires one one-time repo setting: Settings -> Actions -> General ->
+# Workflow permissions -> "Read and write permissions" (off by default
+# on a new repo, which would otherwise make the final push step fail).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "catalogue-data.json"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install Pillow
+
+      - name: Build site
+        run: python3 build_flower_site.py
+
+      - name: Commit and push if anything changed
+        run: |
+          git config user.name "mwlflorals-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing changed - skipping commit."
+          else
+            git commit -m "Auto-rebuild from catalogue-data.json [skip ci]"
+            git push
+          fi
