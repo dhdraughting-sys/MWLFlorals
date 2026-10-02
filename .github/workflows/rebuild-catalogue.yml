@@ -17,7 +17,7 @@ on:
     branches: [main]
     paths:
       - "catalogue-data.json"
-            - "blog-posts.json"
+      - "blog-posts.json"
   workflow_dispatch: {}
 
 permissions:
