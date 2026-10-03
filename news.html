@@ -273,6 +273,21 @@
     .price-card{box-shadow:none;border:1px solid #ddd;break-inside:avoid;}
     .price-card:hover{transform:none;box-shadow:none;}
   }
+
+  /* ---------------- Cookie banner ---------------- */
+  #cookie-banner{position:fixed;left:0;right:0;bottom:0;z-index:300;background:var(--hessian-dark);color:#fffaf3;padding:16px 20px;box-shadow:0 -6px 24px rgba(0,0,0,.18);}
+  #cookie-banner .cookie-inner{max-width:var(--maxw);margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:14px 24px;justify-content:space-between;}
+  #cookie-banner p{margin:0;font-size:.9rem;line-height:1.5;color:#fffaf3;flex:1 1 320px;}
+  #cookie-banner a{color:#ecdcc4;text-decoration:underline;}
+  #cookie-banner .cookie-actions{display:flex;gap:10px;flex-shrink:0;}
+  #cookie-banner .btn-cookie{padding:10px 20px;border-radius:22px;font-weight:700;font-size:.85rem;border:none;cursor:pointer;}
+  #cookie-accept{background:var(--sage-dark);color:#fff;}
+  #cookie-reject{background:transparent;color:#fffaf3;border:1px solid #fffaf3 !important;}
+  @media (max-width:640px){
+    #cookie-banner .cookie-inner{flex-direction:column;align-items:stretch;}
+    #cookie-banner .cookie-actions{justify-content:flex-end;}
+  }
+  @media print{ #cookie-banner{display:none !important;} }
 </style>
 </head>
 <body>
@@ -334,10 +349,21 @@
     <div class="brand">Made With Love</div>
     <div>Handmade Artificial Flower Arrangements</div>
     <div class="flinks">
-      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="https://www.facebook.com/madewithlove2611" class="fb-icon" target="_blank" rel="noopener" aria-label="Made With Love on Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12.06C22 6.48 17.52 2 11.94 2 6.36 2 1.88 6.48 1.88 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.42V9.91c0-2.39 1.42-3.71 3.6-3.71 1.04 0 2.13.19 2.13.19v2.35h-1.2c-1.18 0-1.55.74-1.55 1.49v1.79h2.64l-.42 2.91h-2.22V22c4.78-.76 8.44-4.92 8.44-9.94Z"/></svg></a>
+      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="#" id="cookie-settings-link">Cookie Settings</a><a href="https://www.facebook.com/madewithlove2611" class="fb-icon" target="_blank" rel="noopener" aria-label="Made With Love on Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12.06C22 6.48 17.52 2 11.94 2 6.36 2 1.88 6.48 1.88 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.42V9.91c0-2.39 1.42-3.71 3.6-3.71 1.04 0 2.13.19 2.13.19v2.35h-1.2c-1.18 0-1.55.74-1.55 1.49v1.79h2.64l-.42 2.91h-2.22V22c4.78-.76 8.44-4.92 8.44-9.94Z"/></svg></a>
     </div>
   </div>
 </footer>
+
+
+<div id="cookie-banner" hidden role="dialog" aria-label="Cookie notice">
+  <div class="cookie-inner">
+    <p>We use essential cookies to run this site. If you accept, we'll also load our live chat widget (Tawk.to), which sets its own cookie — see our <a href="privacy.html">Privacy Policy</a> for details. We won't load it unless you say yes.</p>
+    <div class="cookie-actions">
+      <button type="button" id="cookie-accept" class="btn-cookie">Accept</button>
+      <button type="button" id="cookie-reject" class="btn-cookie">Reject</button>
+    </div>
+  </div>
+</div>
 
 
 <button id="mwl-chat-launcher" aria-label="Open chat">
@@ -365,25 +391,62 @@
   <div class="chat-disclaimer">Quick-answers are automated. "Talk to a real person" reaches us directly.</div>
 </div>
 
-<!--Start of Tawk.to Script-->
+<!--Start of Tawk.to Script (only loaded after cookie consent — see cookie-consent script below) -->
 <script type="text/javascript">
-var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-Tawk_API.onLoad = function(){
-  // keep Tawk.to's own floating bubble hidden — "Talk to a real person"
-  // above is the only thing that should open it, so we don't end up
-  // with two chat bubbles stacked in the corner.
-  if (typeof Tawk_API.hideWidget === 'function') { Tawk_API.hideWidget(); }
-};
-(function(){
-var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-s1.async=true;
-s1.src='https://embed.tawk.to/6a70e89608d7a41d4157837c/1jv4gp2uq';
-s1.charset='UTF-8';
-s1.setAttribute('crossorigin','*');
-s0.parentNode.insertBefore(s1,s0);
-})();
+function mwlLoadTawk(){
+  if (window.__mwlTawkLoaded) return;
+  window.__mwlTawkLoaded = true;
+  var Tawk_API=window.Tawk_API||{}, Tawk_LoadStart=new Date();
+  window.Tawk_API = Tawk_API;
+  window.Tawk_LoadStart = Tawk_LoadStart;
+  Tawk_API.onLoad = function(){
+    // keep Tawk.to's own floating bubble hidden — "Talk to a real person"
+    // above is the only thing that should open it, so we don't end up
+    // with two chat bubbles stacked in the corner.
+    if (typeof Tawk_API.hideWidget === 'function') { Tawk_API.hideWidget(); }
+  };
+  var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+  s1.async=true;
+  s1.src='https://embed.tawk.to/6a70e89608d7a41d4157837c/1jv4gp2uq';
+  s1.charset='UTF-8';
+  s1.setAttribute('crossorigin','*');
+  s0.parentNode.insertBefore(s1,s0);
+}
 </script>
 <!--End of Tawk.to Script-->
+
+<!--Start of cookie consent banner-->
+<script type="text/javascript">
+(function(){
+  var banner = document.getElementById('cookie-banner');
+  var acceptBtn = document.getElementById('cookie-accept');
+  var rejectBtn = document.getElementById('cookie-reject');
+  var settingsLink = document.getElementById('cookie-settings-link');
+  var consent = null;
+  try { consent = localStorage.getItem('mwlCookieConsent'); } catch (e) {}
+
+  if (consent === 'accepted') {
+    mwlLoadTawk();
+  } else if (consent !== 'rejected' && banner) {
+    banner.hidden = false;
+  }
+
+  if (acceptBtn) acceptBtn.addEventListener('click', function(){
+    try { localStorage.setItem('mwlCookieConsent', 'accepted'); } catch (e) {}
+    if (banner) banner.hidden = true;
+    mwlLoadTawk();
+  });
+  if (rejectBtn) rejectBtn.addEventListener('click', function(){
+    try { localStorage.setItem('mwlCookieConsent', 'rejected'); } catch (e) {}
+    if (banner) banner.hidden = true;
+  });
+  if (settingsLink) settingsLink.addEventListener('click', function(e){
+    e.preventDefault();
+    if (banner) banner.hidden = false;
+  });
+})();
+</script>
+<!--End of cookie consent banner-->
 
 <script>
 (function(){

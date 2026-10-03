@@ -670,6 +670,21 @@ CSS = """
     .price-card{box-shadow:none;border:1px solid #ddd;break-inside:avoid;}
     .price-card:hover{transform:none;box-shadow:none;}
   }
+
+  /* ---------------- Cookie banner ---------------- */
+  #cookie-banner{position:fixed;left:0;right:0;bottom:0;z-index:300;background:var(--hessian-dark);color:#fffaf3;padding:16px 20px;box-shadow:0 -6px 24px rgba(0,0,0,.18);}
+  #cookie-banner .cookie-inner{max-width:var(--maxw);margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:14px 24px;justify-content:space-between;}
+  #cookie-banner p{margin:0;font-size:.9rem;line-height:1.5;color:#fffaf3;flex:1 1 320px;}
+  #cookie-banner a{color:#ecdcc4;text-decoration:underline;}
+  #cookie-banner .cookie-actions{display:flex;gap:10px;flex-shrink:0;}
+  #cookie-banner .btn-cookie{padding:10px 20px;border-radius:22px;font-weight:700;font-size:.85rem;border:none;cursor:pointer;}
+  #cookie-accept{background:var(--sage-dark);color:#fff;}
+  #cookie-reject{background:transparent;color:#fffaf3;border:1px solid #fffaf3 !important;}
+  @media (max-width:640px){
+    #cookie-banner .cookie-inner{flex-direction:column;align-items:stretch;}
+    #cookie-banner .cookie-actions{justify-content:flex-end;}
+  }
+  @media print{ #cookie-banner{display:none !important;} }
 """
 
 def placeholder(icon="&#127800;", label="Photo coming soon"):
@@ -988,10 +1003,22 @@ FOOTER = f"""
     <div class="brand">Made With Love</div>
     <div>Handmade Artificial Flower Arrangements</div>
     <div class="flinks">
-      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="{FACEBOOK_URL}" class="fb-icon" target="_blank" rel="noopener" aria-label="Made With Love on Facebook">{FB_ICON_SVG}</a>
+      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="#" id="cookie-settings-link">Cookie Settings</a><a href="{FACEBOOK_URL}" class="fb-icon" target="_blank" rel="noopener" aria-label="Made With Love on Facebook">{FB_ICON_SVG}</a>
     </div>
   </div>
 </footer>
+"""
+
+COOKIE_BANNER = """
+<div id="cookie-banner" hidden role="dialog" aria-label="Cookie notice">
+  <div class="cookie-inner">
+    <p>We use essential cookies to run this site. If you accept, we'll also load our live chat widget (Tawk.to), which sets its own cookie — see our <a href="privacy.html">Privacy Policy</a> for details. We won't load it unless you say yes.</p>
+    <div class="cookie-actions">
+      <button type="button" id="cookie-accept" class="btn-cookie">Accept</button>
+      <button type="button" id="cookie-reject" class="btn-cookie">Reject</button>
+    </div>
+  </div>
+</div>
 """
 
 CHAT_WIDGET = """
@@ -1020,25 +1047,62 @@ CHAT_WIDGET = """
   <div class="chat-disclaimer">Quick-answers are automated. "Talk to a real person" reaches us directly.</div>
 </div>
 
-<!--Start of Tawk.to Script-->
+<!--Start of Tawk.to Script (only loaded after cookie consent — see cookie-consent script below) -->
 <script type="text/javascript">
-var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-Tawk_API.onLoad = function(){
-  // keep Tawk.to's own floating bubble hidden — "Talk to a real person"
-  // above is the only thing that should open it, so we don't end up
-  // with two chat bubbles stacked in the corner.
-  if (typeof Tawk_API.hideWidget === 'function') { Tawk_API.hideWidget(); }
-};
-(function(){
-var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-s1.async=true;
-s1.src='https://embed.tawk.to/6a70e89608d7a41d4157837c/1jv4gp2uq';
-s1.charset='UTF-8';
-s1.setAttribute('crossorigin','*');
-s0.parentNode.insertBefore(s1,s0);
-})();
+function mwlLoadTawk(){
+  if (window.__mwlTawkLoaded) return;
+  window.__mwlTawkLoaded = true;
+  var Tawk_API=window.Tawk_API||{}, Tawk_LoadStart=new Date();
+  window.Tawk_API = Tawk_API;
+  window.Tawk_LoadStart = Tawk_LoadStart;
+  Tawk_API.onLoad = function(){
+    // keep Tawk.to's own floating bubble hidden — "Talk to a real person"
+    // above is the only thing that should open it, so we don't end up
+    // with two chat bubbles stacked in the corner.
+    if (typeof Tawk_API.hideWidget === 'function') { Tawk_API.hideWidget(); }
+  };
+  var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+  s1.async=true;
+  s1.src='https://embed.tawk.to/6a70e89608d7a41d4157837c/1jv4gp2uq';
+  s1.charset='UTF-8';
+  s1.setAttribute('crossorigin','*');
+  s0.parentNode.insertBefore(s1,s0);
+}
 </script>
 <!--End of Tawk.to Script-->
+
+<!--Start of cookie consent banner-->
+<script type="text/javascript">
+(function(){
+  var banner = document.getElementById('cookie-banner');
+  var acceptBtn = document.getElementById('cookie-accept');
+  var rejectBtn = document.getElementById('cookie-reject');
+  var settingsLink = document.getElementById('cookie-settings-link');
+  var consent = null;
+  try { consent = localStorage.getItem('mwlCookieConsent'); } catch (e) {}
+
+  if (consent === 'accepted') {
+    mwlLoadTawk();
+  } else if (consent !== 'rejected' && banner) {
+    banner.hidden = false;
+  }
+
+  if (acceptBtn) acceptBtn.addEventListener('click', function(){
+    try { localStorage.setItem('mwlCookieConsent', 'accepted'); } catch (e) {}
+    if (banner) banner.hidden = true;
+    mwlLoadTawk();
+  });
+  if (rejectBtn) rejectBtn.addEventListener('click', function(){
+    try { localStorage.setItem('mwlCookieConsent', 'rejected'); } catch (e) {}
+    if (banner) banner.hidden = true;
+  });
+  if (settingsLink) settingsLink.addEventListener('click', function(e){
+    e.preventDefault();
+    if (banner) banner.hidden = false;
+  });
+})();
+</script>
+<!--End of cookie consent banner-->
 
 <script>
 (function(){
@@ -1171,6 +1235,7 @@ def page(title, description, active, body_content, page_hero=None):
 {hero_block}
 {body_content}
 {FOOTER}
+{COOKIE_BANNER}
 {CHAT_WIDGET}
 </body>
 </html>
@@ -1387,6 +1452,40 @@ contact_body = """
 </script>
 """
 
+PRIVACY_BODY = """
+<section class="about">
+  <div class="wrap" style="max-width:760px;">
+    <p style="color:var(--ink-soft);font-size:.92rem;">Last updated: 3 October 2026</p>
+
+    <h2>Who we are</h2>
+    <p>Made With Love is a handmade artificial flower arrangement business. You can reach us at <a href="mailto:info@mwlflorals.co.uk">info@mwlflorals.co.uk</a> or via the contact form or chat button on this site. We're the data controller for the personal information described in this policy.</p>
+
+    <h2>What we collect, and why</h2>
+    <p><strong>Contact form.</strong> When you use the form on our Contact page, we collect your name, email address and message so we can reply to your enquiry.</p>
+    <p><strong>Live chat.</strong> If you message us through the "Talk to a real person" option in the chat widget, your conversation is handled by Tawk.to, our live chat provider, so we can reply to you. Tawk.to may also collect your IP address, browser type, and the pages you've visited, in order to run the chat service.</p>
+    <p>We don't run ads on this site, we don't sell your data, and we don't use analytics or tracking cookies.</p>
+
+    <h2>How your contact form is handled</h2>
+    <p>Submitting the contact form sends your details through Web3Forms, a third-party form service, which forwards your message straight to our email inbox. Web3Forms doesn't use your details for anything else.</p>
+
+    <h2>Cookies</h2>
+    <p>The only non-essential cookie-setting feature on this site is the live chat widget (Tawk.to). It only loads once you accept cookies via the banner shown on your first visit — if you choose "Reject," the chat widget won't load, and you can still reach us by email or the contact form. You can change your choice at any time using the "Cookie Settings" link in the footer.</p>
+
+    <h2>Where your data goes</h2>
+    <p>Tawk.to is based in the United States and is certified under the UK Extension to the EU-U.S. Data Privacy Framework, a recognised safeguard for transferring personal data there. Web3Forms relies on Standard Contractual Clauses to safeguard any data transferred outside the UK and EU.</p>
+
+    <h2>How long we keep it</h2>
+    <p>We keep enquiry and chat records only as long as needed to deal with your enquiry, and for a reasonable period afterwards in case you get back in touch, after which we delete them.</p>
+
+    <h2>Your rights</h2>
+    <p>Under UK GDPR, you can ask what personal data we hold about you, have it corrected or deleted, and object to how we use it. To exercise any of these, email <a href="mailto:info@mwlflorals.co.uk">info@mwlflorals.co.uk</a>. You can also complain to the Information Commissioner's Office (ICO) at <a href="https://ico.org.uk" target="_blank" rel="noopener">ico.org.uk</a> if you're unhappy with how we've handled your data.</p>
+
+    <h2>Contact</h2>
+    <p>Questions about this policy or your data: <a href="mailto:info@mwlflorals.co.uk">info@mwlflorals.co.uk</a>.</p>
+  </div>
+</section>
+"""
+
 pages = {
     "index.html": page(
         "Made With Love — Handmade Artificial Flower Arrangements",
@@ -1422,6 +1521,12 @@ pages = {
         "Get in touch with Made With Love to talk about your handmade artificial flower arrangement — wreaths, hat boxes, grave pots, bobo balloons and rose bears.",
         "contact.html", contact_body,
         page_hero={"eyebrow":"Contact","title":"Let's Talk","sub":"Message us directly via the form below or the chat button, and we'll get back to you."},
+    ),
+    "privacy.html": page(
+        "Privacy Policy | Made With Love",
+        "How Made With Love collects, uses and protects your personal information, including our use of cookies and the live chat widget.",
+        "privacy.html", PRIVACY_BODY,
+        page_hero={"eyebrow":"Your Privacy","title":"Privacy Policy","sub":"How we collect, use and protect your information."},
     ),
 }
 
