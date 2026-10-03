@@ -429,6 +429,8 @@ CSS = """
   .nav-fb{display:inline-flex;align-items:center;color:var(--ink-soft);transition:color .15s;}
   .nav-fb:hover{color:var(--hessian-dark);}
   .nav-fb svg{width:20px;height:20px;display:block;}
+  .nav-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;align-items:center;justify-content:center;color:var(--hessian-dark);}
+  .nav-toggle svg{width:26px;height:26px;display:block;}
 
   .tag-badge{
     border-radius:50%;
@@ -597,7 +599,11 @@ CSS = """
     .hero-inner{grid-template-columns:1fr;}
     .hero-photo-card{order:-1;max-width:420px;margin:0 auto;}
     .why-grid{grid-template-columns:1fr 1fr;}
-    nav.links{display:none;}
+    .nav-toggle{display:flex;}
+    nav.links{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;gap:0;background:#fffaf3;border-bottom:1px solid #e9ddc9;box-shadow:0 14px 30px rgba(74,63,53,.14);padding:4px 24px 10px;}
+    nav.links.open{display:flex;}
+    nav.links a{padding:13px 4px;border-bottom:1px solid #f1e8d8;}
+    nav.links a:last-child{border-bottom:none;}
   }
   @media(max-width:560px){
     h1.script-title{font-size:3rem;}
@@ -986,13 +992,38 @@ def nav_html(active):
       <div class="tag-badge nav-badge"><span class="script">MWL</span></div>
       <span class="nav-word script">Made With Love</span>
     </a>
-    <nav class="links">
+    <nav class="links" id="mwl-nav-links">
 {links}
     </nav>
     <a href="{FACEBOOK_URL}" class="nav-fb" target="_blank" rel="noopener" aria-label="Made With Love on Facebook">{FB_ICON_SVG}</a>
     <a href="contact.html" class="nav-cta">Get in Touch</a>
+    <button type="button" class="nav-toggle" id="mwl-nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mwl-nav-links">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
   </div>
 </header>
+<script>
+(function(){{
+  var toggle = document.getElementById('mwl-nav-toggle');
+  var menu = document.getElementById('mwl-nav-links');
+  if (!toggle || !menu) return;
+  function closeMenu(){{
+    menu.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }}
+  toggle.addEventListener('click', function(){{
+    var isOpen = menu.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  }});
+  menu.addEventListener('click', function(e){{
+    if (e.target.tagName === 'A') closeMenu();
+  }});
+  document.addEventListener('click', function(e){{
+    if (!menu.classList.contains('open')) return;
+    if (!menu.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) closeMenu();
+  }});
+}})();
+</script>
 """
 
 FOOTER = f"""
@@ -1001,7 +1032,7 @@ FOOTER = f"""
     <div class="brand">Made With Love</div>
     <div>Handmade Artificial Flower Arrangements</div>
     <div class="flinks">
-      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="#" id="cookie-settings-link">Cookie Settings</a><a href="{FACEBOOK_URL}" class="fb-icon" target="_blank" rel="noopener" aria-label="Made With Love on Facebook">{FB_ICON_SVG}</a>
+      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="pricelist.html">Price List</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="#" id="cookie-settings-link">Cookie Settings</a><a href="{FACEBOOK_URL}" class="fb-icon" target="_blank" rel="noopener" aria-label="Made With Love on Facebook">{FB_ICON_SVG}</a>
     </div>
   </div>
 </footer>

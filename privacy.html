@@ -34,6 +34,8 @@
   .nav-fb{display:inline-flex;align-items:center;color:var(--ink-soft);transition:color .15s;}
   .nav-fb:hover{color:var(--hessian-dark);}
   .nav-fb svg{width:20px;height:20px;display:block;}
+  .nav-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;align-items:center;justify-content:center;color:var(--hessian-dark);}
+  .nav-toggle svg{width:26px;height:26px;display:block;}
 
   .tag-badge{
     border-radius:50%;
@@ -202,7 +204,11 @@
     .hero-inner{grid-template-columns:1fr;}
     .hero-photo-card{order:-1;max-width:420px;margin:0 auto;}
     .why-grid{grid-template-columns:1fr 1fr;}
-    nav.links{display:none;}
+    .nav-toggle{display:flex;}
+    nav.links{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;gap:0;background:#fffaf3;border-bottom:1px solid #e9ddc9;box-shadow:0 14px 30px rgba(74,63,53,.14);padding:4px 24px 10px;}
+    nav.links.open{display:flex;}
+    nav.links a{padding:13px 4px;border-bottom:1px solid #f1e8d8;}
+    nav.links a:last-child{border-bottom:none;}
   }
   @media(max-width:560px){
     h1.script-title{font-size:3rem;}
@@ -298,7 +304,7 @@
       <div class="tag-badge nav-badge"><span class="script">MWL</span></div>
       <span class="nav-word script">Made With Love</span>
     </a>
-    <nav class="links">
+    <nav class="links" id="mwl-nav-links">
       <a href="index.html">Home</a>
       <a href="portfolio.html">Portfolio</a>
       <a href="pricelist.html">Price List</a>
@@ -308,8 +314,33 @@
     </nav>
     <a href="https://www.facebook.com/madewithlove2611" class="nav-fb" target="_blank" rel="noopener" aria-label="Made With Love on Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12.06C22 6.48 17.52 2 11.94 2 6.36 2 1.88 6.48 1.88 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.42V9.91c0-2.39 1.42-3.71 3.6-3.71 1.04 0 2.13.19 2.13.19v2.35h-1.2c-1.18 0-1.55.74-1.55 1.49v1.79h2.64l-.42 2.91h-2.22V22c4.78-.76 8.44-4.92 8.44-9.94Z"/></svg></a>
     <a href="contact.html" class="nav-cta">Get in Touch</a>
+    <button type="button" class="nav-toggle" id="mwl-nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mwl-nav-links">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
   </div>
 </header>
+<script>
+(function(){
+  var toggle = document.getElementById('mwl-nav-toggle');
+  var menu = document.getElementById('mwl-nav-links');
+  if (!toggle || !menu) return;
+  function closeMenu(){
+    menu.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+  toggle.addEventListener('click', function(){
+    var isOpen = menu.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+  menu.addEventListener('click', function(e){
+    if (e.target.tagName === 'A') closeMenu();
+  });
+  document.addEventListener('click', function(e){
+    if (!menu.classList.contains('open')) return;
+    if (!menu.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) closeMenu();
+  });
+})();
+</script>
 
 
 <section class="page-hero">
@@ -359,7 +390,7 @@
     <div class="brand">Made With Love</div>
     <div>Handmade Artificial Flower Arrangements</div>
     <div class="flinks">
-      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="#" id="cookie-settings-link">Cookie Settings</a><a href="https://www.facebook.com/madewithlove2611" class="fb-icon" target="_blank" rel="noopener" aria-label="Made With Love on Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12.06C22 6.48 17.52 2 11.94 2 6.36 2 1.88 6.48 1.88 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.42V9.91c0-2.39 1.42-3.71 3.6-3.71 1.04 0 2.13.19 2.13.19v2.35h-1.2c-1.18 0-1.55.74-1.55 1.49v1.79h2.64l-.42 2.91h-2.22V22c4.78-.76 8.44-4.92 8.44-9.94Z"/></svg></a>
+      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="pricelist.html">Price List</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="#" id="cookie-settings-link">Cookie Settings</a><a href="https://www.facebook.com/madewithlove2611" class="fb-icon" target="_blank" rel="noopener" aria-label="Made With Love on Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12.06C22 6.48 17.52 2 11.94 2 6.36 2 1.88 6.48 1.88 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.42V9.91c0-2.39 1.42-3.71 3.6-3.71 1.04 0 2.13.19 2.13.19v2.35h-1.2c-1.18 0-1.55.74-1.55 1.49v1.79h2.64l-.42 2.91h-2.22V22c4.78-.76 8.44-4.92 8.44-9.94Z"/></svg></a>
     </div>
   </div>
 </footer>
