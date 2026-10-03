@@ -38,13 +38,11 @@ GALLERY_CATEGORIES = [
     {"name": "Handbag Bouquets", "icon": "\U0001F45C"},
     {"name": "Grave Pots", "icon": "\U0001F33F"},
     {"name": "Bobo Balloons", "icon": "\U0001F388"},
-    {"name": "Bouquets", "icon": "\U0001F490"},
     {"name": "Rose Bears", "icon": "\U0001F9F8"},
 ]
 
 GALLERY_ITEMS = [
     {"category": "Hat Boxes", "file": "rosebear.jpg", "alt": "Made With Love — rose hat box arrangement", "caption": "Rose hat box arrangement"},
-    {"category": "Bouquets", "file": "bobo.jpg", "alt": "Made With Love — rose bouquet with balloon", "caption": "Rose bouquet with a balloon accent"},
     {"category": "Handbag Bouquets", "file": "hatbox.jpg", "alt": "Made With Love — handbag bouquet arrangement", "caption": "Handbag bouquet arrangement"},
     # Reuses the same photo already saved for the Price List's Summer Dream
     # entry (images/catalogue/summer-dream-67fae52e.jpg) rather than
@@ -1288,13 +1286,6 @@ HOME_FEATURED = f"""
         <div class="prod-body">
           <h3>Hat Boxes</h3>
           <p>Beautifully arranged artificial blooms in a decorative hat box &mdash; a stunning gift or table centrepiece.</p>
-        </div>
-      </div>
-      <div class="prod-card">
-        {photo_img("bobo", "Made With Love — rose bouquet with balloon", "&#128144;")}
-        <div class="prod-body">
-          <h3>Bouquets</h3>
-          <p>Hand-tied artificial bouquets, finished with a balloon accent for birthdays, celebrations and gifts.</p>
         </div>
       </div>
       <div class="prod-card">
