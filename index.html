@@ -31,6 +31,9 @@
   nav.links a{text-decoration:none;color:var(--ink-soft);transition:color .15s;}
   nav.links a:hover,nav.links a.active{color:var(--hessian-dark);}
   .nav-cta{background:var(--hessian-dark);color:#fff;padding:10px 20px;border-radius:24px;font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap;}
+  .nav-fb{display:inline-flex;align-items:center;color:var(--ink-soft);transition:color .15s;}
+  .nav-fb:hover{color:var(--hessian-dark);}
+  .nav-fb svg{width:20px;height:20px;display:block;}
 
   .tag-badge{
     border-radius:50%;
@@ -163,6 +166,8 @@
   .footer-inner .brand{color:#fffaf3;font-family:'Dancing Script',cursive;font-size:1.2rem;}
   .footer-inner .flinks a{color:#c9b79c;text-decoration:none;margin-left:16px;}
   .footer-inner .flinks a:hover{color:#fffaf3;}
+  .footer-inner .flinks a.fb-icon{display:inline-flex;align-items:center;vertical-align:middle;}
+  .footer-inner .flinks a.fb-icon svg{width:17px;height:17px;display:block;}
 
   #mwl-chat-launcher{position:fixed;bottom:22px;right:22px;z-index:200;width:60px;height:60px;border-radius:50%;background:var(--hessian-dark);color:#fff;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(74,63,53,.35);font-size:26px;display:flex;align-items:center;justify-content:center;transition:transform .15s;}
   #mwl-chat-launcher:hover{transform:scale(1.06);}
@@ -286,6 +291,7 @@
       <a href="about.html">About</a>
       <a href="contact.html">Contact</a>
     </nav>
+    <a href="https://www.facebook.com/madewithlove2611" class="nav-fb" target="_blank" rel="noopener" aria-label="Made With Love on Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12.06C22 6.48 17.52 2 11.94 2 6.36 2 1.88 6.48 1.88 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.42V9.91c0-2.39 1.42-3.71 3.6-3.71 1.04 0 2.13.19 2.13.19v2.35h-1.2c-1.18 0-1.55.74-1.55 1.49v1.79h2.64l-.42 2.91h-2.22V22c4.78-.76 8.44-4.92 8.44-9.94Z"/></svg></a>
     <a href="contact.html" class="nav-cta">Get in Touch</a>
   </div>
 </header>
@@ -356,37 +362,6 @@
   </div>
 </section>
 
-<section class="news-teaser" id="news-teaser">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="eyebrow">What's New</span>
-      <h2>Latest News</h2>
-    </div>
-    <div class="news-teaser-grid">
-<div class="news-teaser-card">
-  
-  <div class="news-teaser-body">
-    <h3>Autumn and winter wreaths.</h3>
-    <div class="post-meta">3 October 2026</div>
-    <a href="news.html#post-autumn-and-winter-wreaths-cfd5ed" class="news-teaser-link">Read more &rarr;</a>
-  </div>
-</div>
-
-<div class="news-teaser-card">
-  
-  <div class="news-teaser-body">
-    <h3>Christmas Drum</h3>
-    <div class="post-meta">2 October 2026</div>
-    <a href="news.html#post-christmas-drum-dcc5e0" class="news-teaser-link">Read more &rarr;</a>
-  </div>
-</div>
-</div>
-    <div style="text-align:center;margin-top:28px;">
-      <a href="news.html" class="btn btn-secondary">See All News</a>
-    </div>
-  </div>
-</section>
-
 <section class="why" id="why">
   <div class="wrap">
     <div class="section-head">
@@ -418,7 +393,7 @@
     <div class="brand">Made With Love</div>
     <div>Handmade Artificial Flower Arrangements</div>
     <div class="flinks">
-      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="https://www.facebook.com/madewithlove2611" target="_blank" rel="noopener">Facebook</a>
+      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="https://www.facebook.com/madewithlove2611" class="fb-icon" target="_blank" rel="noopener" aria-label="Made With Love on Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12.06C22 6.48 17.52 2 11.94 2 6.36 2 1.88 6.48 1.88 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.42V9.91c0-2.39 1.42-3.71 3.6-3.71 1.04 0 2.13.19 2.13.19v2.35h-1.2c-1.18 0-1.55.74-1.55 1.49v1.79h2.64l-.42 2.91h-2.22V22c4.78-.76 8.44-4.92 8.44-9.94Z"/></svg></a>
     </div>
   </div>
 </footer>

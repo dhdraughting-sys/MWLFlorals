@@ -428,6 +428,9 @@ CSS = """
   nav.links a{text-decoration:none;color:var(--ink-soft);transition:color .15s;}
   nav.links a:hover,nav.links a.active{color:var(--hessian-dark);}
   .nav-cta{background:var(--hessian-dark);color:#fff;padding:10px 20px;border-radius:24px;font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap;}
+  .nav-fb{display:inline-flex;align-items:center;color:var(--ink-soft);transition:color .15s;}
+  .nav-fb:hover{color:var(--hessian-dark);}
+  .nav-fb svg{width:20px;height:20px;display:block;}
 
   .tag-badge{
     border-radius:50%;
@@ -560,6 +563,8 @@ CSS = """
   .footer-inner .brand{color:#fffaf3;font-family:'Dancing Script',cursive;font-size:1.2rem;}
   .footer-inner .flinks a{color:#c9b79c;text-decoration:none;margin-left:16px;}
   .footer-inner .flinks a:hover{color:#fffaf3;}
+  .footer-inner .flinks a.fb-icon{display:inline-flex;align-items:center;vertical-align:middle;}
+  .footer-inner .flinks a.fb-icon svg{width:17px;height:17px;display:block;}
 
   #mwl-chat-launcher{position:fixed;bottom:22px;right:22px;z-index:200;width:60px;height:60px;border-radius:50%;background:var(--hessian-dark);color:#fff;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(74,63,53,.35);font-size:26px;display:flex;align-items:center;justify-content:center;transition:transform .15s;}
   #mwl-chat-launcher:hover{transform:scale(1.06);}
@@ -947,6 +952,13 @@ def blog_teaser_section(posts):
 """.format(cards="".join(cards))
 
 
+# Shared Facebook glyph (single-path "f in a circle" mark) used both in
+# the top nav and the footer - colored via currentColor so it always
+# matches whatever link color/hover state it's dropped into.
+FACEBOOK_URL = "https://www.facebook.com/madewithlove2611"
+FB_ICON_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12.06C22 6.48 17.52 2 11.94 2 6.36 2 1.88 6.48 1.88 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.42V9.91c0-2.39 1.42-3.71 3.6-3.71 1.04 0 2.13.19 2.13.19v2.35h-1.2c-1.18 0-1.55.74-1.55 1.49v1.79h2.64l-.42 2.91h-2.22V22c4.78-.76 8.44-4.92 8.44-9.94Z"/></svg>'
+
+
 def nav_html(active):
     items = [("index.html", "Home"), ("portfolio.html", "Portfolio"), ("pricelist.html", "Price List"), ("news.html", "News"), ("about.html", "About"), ("contact.html", "Contact")]
     ACTIVE_CLASS = ' class="active"'
@@ -964,18 +976,19 @@ def nav_html(active):
     <nav class="links">
 {links}
     </nav>
+    <a href="{FACEBOOK_URL}" class="nav-fb" target="_blank" rel="noopener" aria-label="Made With Love on Facebook">{FB_ICON_SVG}</a>
     <a href="contact.html" class="nav-cta">Get in Touch</a>
   </div>
 </header>
 """
 
-FOOTER = """
+FOOTER = f"""
 <footer>
   <div class="wrap footer-inner">
     <div class="brand">Made With Love</div>
     <div>Handmade Artificial Flower Arrangements</div>
     <div class="flinks">
-      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="https://www.facebook.com/madewithlove2611" target="_blank" rel="noopener">Facebook</a>
+      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="{FACEBOOK_URL}" class="fb-icon" target="_blank" rel="noopener" aria-label="Made With Love on Facebook">{FB_ICON_SVG}</a>
     </div>
   </div>
 </footer>
