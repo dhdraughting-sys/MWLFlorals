@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Price List | Made With Love</title>
-<meta name="description" content="Current prices for Made With Love's handmade artificial flower arrangements — wreaths, hat boxes, grave pots, bobo balloons and rose bears.">
+<title>Our Work &amp; Price List | Made With Love</title>
+<meta name="description" content="See our handmade artificial flower arrangements and their current prices — wreaths, hat boxes, handbag bouquets, grave pots, bobo balloons and rose bears.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -225,6 +225,10 @@
   }
 
   /* ---------------- Price List ---------------- */
+  .price-section{margin-bottom:46px;scroll-margin-top:84px;}
+  .price-section-title{font-size:26px;margin-bottom:18px;color:var(--hessian-dark);display:flex;align-items:center;gap:10px;border-bottom:1.5px solid #e9ddc9;padding-bottom:8px;}
+  .price-section-title .ps-icon{font-size:24px;}
+  a.filter-btn{text-decoration:none;display:inline-block;}
   .price-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:22px;}
   .price-card{background:var(--card);border:1px solid #eee1d0;border-radius:var(--radius);overflow:hidden;transition:box-shadow .15s,transform .15s;}
   .price-card:hover{box-shadow:0 14px 34px rgba(74,63,53,.14);transform:translateY(-3px);}
@@ -306,8 +310,7 @@
     </a>
     <nav class="links" id="mwl-nav-links">
       <a href="index.html">Home</a>
-      <a href="portfolio.html">Portfolio</a>
-      <a href="pricelist.html" class="active">Price List</a>
+      <a href="pricelist.html" class="active">Our Work &amp; Price List</a>
       <a href="news.html">News</a>
       <a href="about.html">About</a>
       <a href="contact.html">Contact</a>
@@ -345,8 +348,8 @@
 
 <section class="page-hero">
   <div class="wrap">
-    <span class="eyebrow">Prices</span>
-    <h1>Price List</h1>
+    <span class="eyebrow">What We Make</span>
+    <h1>Our Work &amp; Price List</h1>
     <p>Every piece handmade to order — get in touch for custom colours, sizes or dates.</p>
   </div>
 </section>
@@ -354,17 +357,41 @@
 
 <section class="arrangements" id="price-list">
   <div class="wrap">
-    <div class="gallery-filters" id="mwl-price-filters">
-      <button type="button" class="filter-btn active" data-filter="All">All</button>
-      <button type="button" class="filter-btn" data-filter="Wreaths">Wreaths</button>
-      <button type="button" class="filter-btn" data-filter="Hat Boxes">Hat Boxes</button>
-      <button type="button" class="filter-btn" data-filter="Rose Bears">Rose Bears</button>
-      <button type="button" class="filter-btn" data-filter="Envelopes">Envelopes</button>
-      <button type="button" class="filter-btn" data-filter="Halloween">Halloween</button>
-      <button type="button" class="filter-btn" data-filter="Christmas">Christmas</button>
-      <button type="button" class="filter-btn" data-filter="Other">Other</button>
+    <div class="gallery-filters no-print" id="mwl-price-filters">
+      <a class="filter-btn" href="#cat-wreaths">🍂 Wreaths</a>
+      <a class="filter-btn" href="#cat-hat-boxes">🎩 Hat Boxes</a>
+      <a class="filter-btn" href="#cat-rose-bears">🧸 Rose Bears</a>
+      <a class="filter-btn" href="#cat-envelopes">💌 Envelopes</a>
+      <a class="filter-btn" href="#cat-halloween">🎃 Halloween</a>
+      <a class="filter-btn" href="#cat-christmas">🎄 Christmas</a>
+      <a class="filter-btn" href="#cat-other">🌸 Other</a>
     </div>
-    <div class="price-grid" id="mwl-price-grid">
+    <div class="price-section" id="cat-wreaths">
+      <h2 class="price-section-title"><span class="ps-icon">🍂</span> Wreaths</h2>
+      <div class="price-grid">
+      <div class="price-card" data-category="Wreaths">
+        <div class="price-photo has-photo multi-photo"><div class="price-gallery"><img src="images/catalogue/mellow-yellow-54ae3603.jpg" alt="Made With Love — Mellow Yellow (photo 1 of 2)" loading="lazy"><img src="images/catalogue/mellow-yellow-54ae3603-2.jpg" alt="Made With Love — Mellow Yellow (photo 2 of 2)" loading="lazy"></div><div class="g-dots"><span class="g-dot active" data-i="0"></span><span class="g-dot" data-i="1"></span></div></div>
+        <div class="price-body">
+          <span class="price-cat">Wreaths</span>
+          <h3 class="price-name">Mellow Yellow</h3>
+          <p class="price-desc">A beautiful bright full wreath.</p>
+          <div class="price-tag">£35.00</div>
+        </div>
+      </div>
+      <div class="price-card" data-category="Wreaths">
+        <div class="price-photo has-photo"><img src="images/catalogue/sunflowers-050469ba.jpg" alt="Made With Love — Sunflowers" loading="lazy"></div>
+        <div class="price-body">
+          <span class="price-cat">Wreaths</span>
+          <h3 class="price-name">Sunflowers</h3>
+          <p class="price-desc">Sunflower wreath</p>
+          <div class="price-tag">£25.00</div>
+        </div>
+      </div>
+      </div>
+    </div>
+    <div class="price-section" id="cat-hat-boxes">
+      <h2 class="price-section-title"><span class="ps-icon">🎩</span> Hat Boxes</h2>
+      <div class="price-grid">
       <div class="price-card" data-category="Hat Boxes">
         <div class="price-photo has-photo multi-photo"><div class="price-gallery"><img src="images/catalogue/autumn-pearl-e00ae2d7.jpg" alt="Made With Love — Autumn Pearl (photo 1 of 3)" loading="lazy"><img src="images/catalogue/autumn-pearl-e00ae2d7-2.jpg" alt="Made With Love — Autumn Pearl (photo 2 of 3)" loading="lazy"><img src="images/catalogue/autumn-pearl-e00ae2d7-3.jpg" alt="Made With Love — Autumn Pearl (photo 3 of 3)" loading="lazy"></div><div class="g-dots"><span class="g-dot active" data-i="0"></span><span class="g-dot" data-i="1"></span><span class="g-dot" data-i="2"></span></div></div>
         <div class="price-body">
@@ -374,15 +401,84 @@
           <div class="price-tag">£35.00</div>
         </div>
       </div>
-      <div class="price-card" data-category="Other">
-        <div class="price-photo has-photo"><img src="images/catalogue/floral-4b76a40e.jpg" alt="Made With Love — Floral" loading="lazy"></div>
+      <div class="price-card" data-category="Hat Boxes">
+        <div class="price-photo has-photo multi-photo"><div class="price-gallery"><img src="images/catalogue/jade-430592ca.jpg" alt="Made With Love — Jade (photo 1 of 2)" loading="lazy"><img src="images/catalogue/jade-430592ca-2.jpg" alt="Made With Love — Jade (photo 2 of 2)" loading="lazy"></div><div class="g-dots"><span class="g-dot active" data-i="0"></span><span class="g-dot" data-i="1"></span></div></div>
         <div class="price-body">
-          <span class="price-cat">Other</span>
-          <h3 class="price-name">Floral</h3>
-          <p class="price-desc">Floral bag arrangement</p>
-          <div class="price-tag">£10.00</div>
+          <span class="price-cat">Hat Boxes</span>
+          <h3 class="price-name">Jade</h3>
+          <p class="price-desc">Large sage green hatbox full with beautiful flowers, pearl bow and ribbons.</p>
+          <div class="price-tag">£50.00</div>
         </div>
       </div>
+      <div class="price-card" data-category="Hat Boxes">
+        <div class="price-photo has-photo multi-photo"><div class="price-gallery"><img src="images/catalogue/pretty-in-pink-81cd2dbf.jpg" alt="Made With Love — Pretty in Pink (photo 1 of 3)" loading="lazy"><img src="images/catalogue/pretty-in-pink-81cd2dbf-2.jpg" alt="Made With Love — Pretty in Pink (photo 2 of 3)" loading="lazy"><img src="images/catalogue/pretty-in-pink-81cd2dbf-3.jpg" alt="Made With Love — Pretty in Pink (photo 3 of 3)" loading="lazy"></div><div class="g-dots"><span class="g-dot active" data-i="0"></span><span class="g-dot" data-i="1"></span><span class="g-dot" data-i="2"></span></div></div>
+        <div class="price-body">
+          <span class="price-cat">Hat Boxes</span>
+          <h3 class="price-name">Pretty in Pink</h3>
+          <p class="price-desc">A beautiful Large hatbox arrangement, made for a beautiful lady !</p>
+          <div class="price-tag">£40.00</div>
+        </div>
+      </div>
+      <div class="price-card" data-category="Hat Boxes">
+        <div class="price-photo has-photo"><img src="images/catalogue/red-rose-dd75e148.jpg" alt="Made With Love — Red Rose" loading="lazy"></div>
+        <div class="price-body">
+          <span class="price-cat">Hat Boxes</span>
+          <h3 class="price-name">Red Rose</h3>
+          <p class="price-desc">Beautiful medium white hatbox with roses and foliage.</p>
+          <div class="price-tag">£25.00</div>
+        </div>
+      </div>
+      <div class="price-card" data-category="Hat Boxes">
+        <div class="price-photo has-photo"><img src="images/catalogue/rose-bear-and-florals-087ae0a6.jpg" alt="Made With Love — Rose Bear and florals" loading="lazy"></div>
+        <div class="price-body">
+          <span class="price-cat">Hat Boxes</span>
+          <h3 class="price-name">Rose Bear and florals</h3>
+          <p class="price-desc">Rose bear with floral arrangement in medium hatbox</p>
+          <div class="price-tag">£30.00</div>
+        </div>
+      </div>
+      </div>
+    </div>
+    <div class="price-section" id="cat-rose-bears">
+      <h2 class="price-section-title"><span class="ps-icon">🧸</span> Rose Bears</h2>
+      <div class="price-grid">
+      <div class="price-card" data-category="Rose Bears">
+        <div class="price-photo has-photo"><img src="images/catalogue/rose-bear-63402256.jpg" alt="Made With Love — Rose bear" loading="lazy"></div>
+        <div class="price-body">
+          <span class="price-cat">Rose Bears</span>
+          <h3 class="price-name">Rose bear</h3>
+          <p class="price-desc">Mustard /gold Rose bear</p>
+          <div class="price-tag">£15.00</div>
+        </div>
+      </div>
+      </div>
+    </div>
+    <div class="price-section" id="cat-envelopes">
+      <h2 class="price-section-title"><span class="ps-icon">💌</span> Envelopes</h2>
+      <div class="price-grid">
+      <div class="price-card" data-category="Envelopes">
+        <div class="price-photo has-photo"><img src="images/catalogue/lemon-envelope-floral-arrangements-12ada1a3.jpg" alt="Made With Love — Lemon Envelope Floral Arrangements" loading="lazy"></div>
+        <div class="price-body">
+          <span class="price-cat">Envelopes</span>
+          <h3 class="price-name">Lemon Envelope Floral Arrangements</h3>
+          <p class="price-desc">Lovely floral arrangements, in a Lemon envelope style box.</p>
+          <div class="price-tag">£15.00</div>
+        </div>
+      </div>
+      <div class="price-card" data-category="Envelopes">
+        <div class="price-photo has-photo"><img src="images/catalogue/red-envelope-floral-arrangement-c0575c9a.jpg" alt="Made With Love — Red Envelope Floral Arrangement" loading="lazy"></div>
+        <div class="price-body">
+          <span class="price-cat">Envelopes</span>
+          <h3 class="price-name">Red Envelope Floral Arrangement</h3>
+          <p class="price-desc">Lovely floral arrangements in an envelope style box.</p>
+          <div class="price-tag">£15.00</div>
+        </div>
+      </div>
+      </div>
+    </div>
+    <div class="price-section" id="cat-halloween">
+      <h2 class="price-section-title"><span class="ps-icon">🎃</span> Halloween</h2>
+      <div class="price-grid">
       <div class="price-card" data-category="Halloween">
         <div class="price-photo has-photo"><img src="images/catalogue/halloween-lantern-4be76379.jpg" alt="Made With Love — Halloween Lantern" loading="lazy"></div>
         <div class="price-body">
@@ -419,85 +515,32 @@
           <div class="price-tag">£25.00</div>
         </div>
       </div>
-      <div class="price-card" data-category="Hat Boxes">
-        <div class="price-photo has-photo multi-photo"><div class="price-gallery"><img src="images/catalogue/jade-430592ca.jpg" alt="Made With Love — Jade (photo 1 of 2)" loading="lazy"><img src="images/catalogue/jade-430592ca-2.jpg" alt="Made With Love — Jade (photo 2 of 2)" loading="lazy"></div><div class="g-dots"><span class="g-dot active" data-i="0"></span><span class="g-dot" data-i="1"></span></div></div>
+      </div>
+    </div>
+    <div class="price-section" id="cat-christmas">
+      <h2 class="price-section-title"><span class="ps-icon">🎄</span> Christmas</h2>
+      <div class="price-grid">
+      <div class="price-card" data-category="Christmas">
+        <div class="price-photo has-photo multi-photo"><div class="price-gallery"><img src="images/catalogue/winter-wonderland-90fab0b6.jpg" alt="Made With Love — Winter wonderland (photo 1 of 2)" loading="lazy"><img src="images/catalogue/winter-wonderland-90fab0b6-2.jpg" alt="Made With Love — Winter wonderland (photo 2 of 2)" loading="lazy"></div><div class="g-dots"><span class="g-dot active" data-i="0"></span><span class="g-dot" data-i="1"></span></div></div>
         <div class="price-body">
-          <span class="price-cat">Hat Boxes</span>
-          <h3 class="price-name">Jade</h3>
-          <p class="price-desc">Large sage green hatbox full with beautiful flowers, pearl bow and ribbons.</p>
-          <div class="price-tag">£50.00</div>
+          <span class="price-cat">Christmas</span>
+          <h3 class="price-name">Winter wonderland</h3>
+          
+          <div class="price-tag">£45.00</div>
         </div>
       </div>
-      <div class="price-card" data-category="Envelopes">
-        <div class="price-photo has-photo"><img src="images/catalogue/lemon-envelope-floral-arrangements-12ada1a3.jpg" alt="Made With Love — Lemon Envelope Floral Arrangements" loading="lazy"></div>
-        <div class="price-body">
-          <span class="price-cat">Envelopes</span>
-          <h3 class="price-name">Lemon Envelope Floral Arrangements</h3>
-          <p class="price-desc">Lovely floral arrangements, in a Lemon envelope style box.</p>
-          <div class="price-tag">£15.00</div>
-        </div>
       </div>
-      <div class="price-card" data-category="Wreaths">
-        <div class="price-photo has-photo multi-photo"><div class="price-gallery"><img src="images/catalogue/mellow-yellow-54ae3603.jpg" alt="Made With Love — Mellow Yellow (photo 1 of 2)" loading="lazy"><img src="images/catalogue/mellow-yellow-54ae3603-2.jpg" alt="Made With Love — Mellow Yellow (photo 2 of 2)" loading="lazy"></div><div class="g-dots"><span class="g-dot active" data-i="0"></span><span class="g-dot" data-i="1"></span></div></div>
+    </div>
+    <div class="price-section" id="cat-other">
+      <h2 class="price-section-title"><span class="ps-icon">🌸</span> Other</h2>
+      <div class="price-grid">
+      <div class="price-card" data-category="Other">
+        <div class="price-photo has-photo"><img src="images/catalogue/floral-4b76a40e.jpg" alt="Made With Love — Floral" loading="lazy"></div>
         <div class="price-body">
-          <span class="price-cat">Wreaths</span>
-          <h3 class="price-name">Mellow Yellow</h3>
-          <p class="price-desc">A beautiful bright full wreath.</p>
-          <div class="price-tag">£35.00</div>
-        </div>
-      </div>
-      <div class="price-card" data-category="Hat Boxes">
-        <div class="price-photo has-photo multi-photo"><div class="price-gallery"><img src="images/catalogue/pretty-in-pink-81cd2dbf.jpg" alt="Made With Love — Pretty in Pink (photo 1 of 3)" loading="lazy"><img src="images/catalogue/pretty-in-pink-81cd2dbf-2.jpg" alt="Made With Love — Pretty in Pink (photo 2 of 3)" loading="lazy"><img src="images/catalogue/pretty-in-pink-81cd2dbf-3.jpg" alt="Made With Love — Pretty in Pink (photo 3 of 3)" loading="lazy"></div><div class="g-dots"><span class="g-dot active" data-i="0"></span><span class="g-dot" data-i="1"></span><span class="g-dot" data-i="2"></span></div></div>
-        <div class="price-body">
-          <span class="price-cat">Hat Boxes</span>
-          <h3 class="price-name">Pretty in Pink</h3>
-          <p class="price-desc">A beautiful Large hatbox arrangement, made for a beautiful lady !</p>
-          <div class="price-tag">£40.00</div>
-        </div>
-      </div>
-      <div class="price-card" data-category="Envelopes">
-        <div class="price-photo has-photo"><img src="images/catalogue/red-envelope-floral-arrangement-c0575c9a.jpg" alt="Made With Love — Red Envelope Floral Arrangement" loading="lazy"></div>
-        <div class="price-body">
-          <span class="price-cat">Envelopes</span>
-          <h3 class="price-name">Red Envelope Floral Arrangement</h3>
-          <p class="price-desc">Lovely floral arrangements in an envelope style box.</p>
-          <div class="price-tag">£15.00</div>
-        </div>
-      </div>
-      <div class="price-card" data-category="Hat Boxes">
-        <div class="price-photo has-photo"><img src="images/catalogue/red-rose-dd75e148.jpg" alt="Made With Love — Red Rose" loading="lazy"></div>
-        <div class="price-body">
-          <span class="price-cat">Hat Boxes</span>
-          <h3 class="price-name">Red Rose</h3>
-          <p class="price-desc">Beautiful medium white hatbox with roses and foliage.</p>
-          <div class="price-tag">£25.00</div>
-        </div>
-      </div>
-      <div class="price-card" data-category="Rose Bears">
-        <div class="price-photo has-photo"><img src="images/catalogue/rose-bear-63402256.jpg" alt="Made With Love — Rose bear" loading="lazy"></div>
-        <div class="price-body">
-          <span class="price-cat">Rose Bears</span>
-          <h3 class="price-name">Rose bear</h3>
-          <p class="price-desc">Mustard /gold Rose bear</p>
-          <div class="price-tag">£15.00</div>
-        </div>
-      </div>
-      <div class="price-card" data-category="Hat Boxes">
-        <div class="price-photo has-photo"><img src="images/catalogue/rose-bear-and-florals-087ae0a6.jpg" alt="Made With Love — Rose Bear and florals" loading="lazy"></div>
-        <div class="price-body">
-          <span class="price-cat">Hat Boxes</span>
-          <h3 class="price-name">Rose Bear and florals</h3>
-          <p class="price-desc">Rose bear with floral arrangement in medium hatbox</p>
-          <div class="price-tag">£30.00</div>
-        </div>
-      </div>
-      <div class="price-card" data-category="Wreaths">
-        <div class="price-photo has-photo"><img src="images/catalogue/sunflowers-050469ba.jpg" alt="Made With Love — Sunflowers" loading="lazy"></div>
-        <div class="price-body">
-          <span class="price-cat">Wreaths</span>
-          <h3 class="price-name">Sunflowers</h3>
-          <p class="price-desc">Sunflower wreath</p>
-          <div class="price-tag">£25.00</div>
+          <span class="price-cat">Other</span>
+          <h3 class="price-name">Floral</h3>
+          <p class="price-desc">Floral bag arrangement</p>
+          <div class="price-tag">£10.00</div>
         </div>
       </div>
       <div class="price-card" data-category="Other">
@@ -518,14 +561,6 @@
           <div class="price-tag">£30.00</div>
         </div>
       </div>
-      <div class="price-card" data-category="Christmas">
-        <div class="price-photo has-photo multi-photo"><div class="price-gallery"><img src="images/catalogue/winter-wonderland-90fab0b6.jpg" alt="Made With Love — Winter wonderland (photo 1 of 2)" loading="lazy"><img src="images/catalogue/winter-wonderland-90fab0b6-2.jpg" alt="Made With Love — Winter wonderland (photo 2 of 2)" loading="lazy"></div><div class="g-dots"><span class="g-dot active" data-i="0"></span><span class="g-dot" data-i="1"></span></div></div>
-        <div class="price-body">
-          <span class="price-cat">Christmas</span>
-          <h3 class="price-name">Winter wonderland</h3>
-          
-          <div class="price-tag">£45.00</div>
-        </div>
       </div>
     </div>
     <div style="text-align:center;margin-top:30px;">
@@ -537,18 +572,6 @@
 
 <script>
 (function(){
-  var filterBtns = document.querySelectorAll('#mwl-price-filters .filter-btn');
-  var cards = document.querySelectorAll('#mwl-price-grid .price-card');
-  filterBtns.forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      filterBtns.forEach(function(b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      var filter = btn.getAttribute('data-filter');
-      cards.forEach(function(card) {
-        card.style.display = (filter === 'All' || card.dataset.category === filter) ? '' : 'none';
-      });
-    });
-  });
   var printBtn = document.getElementById('mwl-print-btn');
   if (printBtn) printBtn.addEventListener('click', function() { window.print(); });
 
@@ -593,7 +616,7 @@
     <div class="brand">Made With Love</div>
     <div>Handmade Artificial Flower Arrangements</div>
     <div class="flinks">
-      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="pricelist.html">Price List</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="#" id="cookie-settings-link">Cookie Settings</a><a href="https://www.facebook.com/madewithlove2611" class="fb-icon" target="_blank" rel="noopener" aria-label="Made With Love on Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12.06C22 6.48 17.52 2 11.94 2 6.36 2 1.88 6.48 1.88 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.42V9.91c0-2.39 1.42-3.71 3.6-3.71 1.04 0 2.13.19 2.13.19v2.35h-1.2c-1.18 0-1.55.74-1.55 1.49v1.79h2.64l-.42 2.91h-2.22V22c4.78-.76 8.44-4.92 8.44-9.94Z"/></svg></a>
+      <a href="index.html">Home</a><a href="pricelist.html">Our Work &amp; Price List</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="#" id="cookie-settings-link">Cookie Settings</a><a href="https://www.facebook.com/madewithlove2611" class="fb-icon" target="_blank" rel="noopener" aria-label="Made With Love on Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12.06C22 6.48 17.52 2 11.94 2 6.36 2 1.88 6.48 1.88 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.42V9.91c0-2.39 1.42-3.71 3.6-3.71 1.04 0 2.13.19 2.13.19v2.35h-1.2c-1.18 0-1.55.74-1.55 1.49v1.79h2.64l-.42 2.91h-2.22V22c4.78-.76 8.44-4.92 8.44-9.94Z"/></svg></a>
     </div>
   </div>
 </footer>
@@ -699,9 +722,9 @@ function mwlLoadTawk(){
 
   var KB = [
     { topic: "Our Arrangements", keys: ["arrangement","product","make","wreath","hat box","grave pot","balloon","rose bear","portfolio"],
-      a: "We make wreaths, hat box arrangements, grave pots, bobo balloons and hand-made rose bears — all with high-quality artificial flowers that keep their beauty all year round. See the Portfolio page for the full range." },
+      a: "We make wreaths, hat box arrangements, grave pots, bobo balloons and hand-made rose bears — all with high-quality artificial flowers that keep their beauty all year round. See our Work & Price List page for the full range, with photos and prices." },
     { topic: "Ordering", keys: ["order","buy","price","cost","how do i"],
-      a: "Check out our Price List page for current prices, then get in touch with what you're after — style, colours and any special dates — and we'll come back with options." },
+      a: "Check out our Work & Price List page for photos and current prices, then get in touch with what you're after — style, colours and any special dates — and we'll come back with options." },
     { topic: "Delivery & Collection", keys: ["deliver","collect","postage","ship"],
       a: "Local delivery and collection can be arranged — just ask when you get in touch." },
     { topic: "Custom Colours", keys: ["colour","color","custom","match"],
