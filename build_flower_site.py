@@ -289,8 +289,19 @@ def pricelist_section(items):
 </section>
 """
 
-    present = [c for c in CATALOGUE_CATEGORY_ORDER if any(it["category"] == c for it in items)]
-    present += sorted({it["category"] for it in items if it["category"] not in present})
+    # Every category the catalogue app offers gets a section, so the site
+    # and the app always match - one with no items yet just shows a
+    # "coming soon" note. ("Other" is the catch-all, so it only appears
+    # once something is actually filed under it.)
+    has_items = {it["category"] for it in items}
+    present = [c for c in CATALOGUE_CATEGORY_ORDER if c in has_items or c != "Other"]
+    present += sorted(c for c in has_items if c not in present)
+
+    SOON_HTML = """
+        <div class="price-soon">
+          <strong>Coming soon</strong>
+          <span>New {label} are on their way &mdash; get in touch and ask us about them.</span>
+        </div>"""
 
     def cat_id(cat):
         return "cat-" + _slugify(cat)
@@ -357,7 +368,7 @@ def pricelist_section(items):
             cid=cat_id(cat),
             icon=CATALOGUE_CATEGORY_ICONS.get(cat, "\U0001F338"),
             label=_esc(cat),
-            cards="".join(card_html(it) for it in items if it["category"] == cat),
+            cards="".join(card_html(it) for it in items if it["category"] == cat) or SOON_HTML.format(label=_esc(cat)),
         )
         for cat in present
     )
@@ -629,6 +640,8 @@ CSS = """
   .price-section-title{font-size:26px;margin-bottom:18px;color:var(--hessian-dark);display:flex;align-items:center;gap:10px;border-bottom:1.5px solid #e9ddc9;padding-bottom:8px;}
   .price-section-title .ps-icon{font-size:24px;}
   a.filter-btn{text-decoration:none;display:inline-block;}
+  .price-soon{grid-column:1/-1;background:#fffdf9;border:1.5px dashed #d8c7a8;border-radius:var(--radius);padding:22px 24px;color:var(--ink-soft);display:flex;flex-direction:column;gap:4px;}
+  .price-soon strong{color:var(--hessian-dark);font-family:'Playfair Display',Georgia,serif;font-size:18px;}
   .price-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:22px;}
   .price-card{background:var(--card);border:1px solid #eee1d0;border-radius:var(--radius);overflow:hidden;transition:box-shadow .15s,transform .15s;}
   .price-card:hover{box-shadow:0 14px 34px rgba(74,63,53,.14);transform:translateY(-3px);}
