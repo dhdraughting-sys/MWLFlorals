@@ -44,10 +44,6 @@ GALLERY_CATEGORIES = [
 GALLERY_ITEMS = [
     {"category": "Hat Boxes", "file": "rosebear.jpg", "alt": "Made With Love — rose hat box arrangement", "caption": "Rose hat box arrangement"},
     {"category": "Handbag Bouquets", "file": "hatbox.jpg", "alt": "Made With Love — handbag bouquet arrangement", "caption": "Handbag bouquet arrangement"},
-    # Reuses the same photo already saved for the Price List's Summer Dream
-    # entry (images/catalogue/summer-dream-67fae52e.jpg) rather than
-    # needing a separate upload - one photo, shown in two places.
-    {"category": "Wreaths", "file": "catalogue/summer-dream-67fae52e.jpg", "alt": "Made With Love — Summer Dream wreath", "caption": "Summer Dream wreath"},
 ]
 
 # ---------------- PRICE LIST ----------------
