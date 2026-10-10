@@ -771,6 +771,12 @@ CSS = """
   .post-body h2{font-size:1.6rem;color:var(--hessian-dark);margin-bottom:8px;}
   .post-body p{color:var(--ink);font-size:1rem;margin-bottom:14px;}
   .post-body p:last-child{margin-bottom:0;}
+  .post-table{overflow-x:auto;margin:6px 0 18px;border:1px solid var(--line, #e6dccd);border-radius:12px;}
+  .post-table table{width:100%;border-collapse:collapse;font-size:.95rem;}
+  .post-table th{background:rgba(139,111,71,.12);color:var(--hessian-dark);text-align:left;padding:10px 12px;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;}
+  @media (max-width:600px){.post-table table{font-size:.8rem;table-layout:fixed;}.post-table th,.post-table td{padding:8px 5px;overflow-wrap:break-word;hyphens:auto;}.post-table th:first-child{width:34%;}.post-table td:first-child{font-size:.76rem;}.post-table th{font-size:.66rem;letter-spacing:.02em;}}
+  .post-table td{padding:10px 12px;border-top:1px solid rgba(139,111,71,.18);vertical-align:top;}
+  .post-table td:first-child{font-weight:600;color:var(--hessian-dark);}
 
   @media print{
     html,body,section,.arrangements{background:#fff !important;}
@@ -990,6 +996,28 @@ def _format_post_date(date_str):
         return date_str
 
 
+def _render_post_block(para):
+    """A paragraph block whose every line starts with "|" is shown as a table
+    (first row = headings; a |---|---| row is ignored). Anything else is a
+    normal paragraph."""
+    lines = [l.strip() for l in para.strip().split("\n") if l.strip()]
+    if lines and all(l.startswith("|") for l in lines):
+        rows = []
+        for l in lines:
+            cells = [c.strip() for c in l.strip("|").split("|")]
+            if all(set(c) <= set("-: ") for c in cells):
+                continue
+            rows.append(cells)
+        if rows:
+            head = "".join("<th>{}</th>".format(_esc(c)) for c in rows[0])
+            body = "".join(
+                "<tr>{}</tr>".format("".join("<td>{}</td>".format(_esc(c)) for c in r))
+                for r in rows[1:]
+            )
+            return '<div class="post-table"><table><thead><tr>{}</tr></thead><tbody>{}</tbody></table></div>'.format(head, body)
+    return "<p>{}</p>".format(_esc(para).replace("\n", "<br>"))
+
+
 def blog_post_card(post):
     anchor = _post_anchor(post)
     photo_html = ""
@@ -1006,10 +1034,7 @@ def blog_post_card(post):
     meta_html = ""
     if meta_bits:
         meta_html = '<div class="post-meta">{}</div>'.format(" &middot; ".join(meta_bits))
-    body_html = "".join(
-        "<p>{}</p>".format(_esc(para).replace("\n", "<br>"))
-        for para in post["body"].split("\n\n") if para.strip()
-    )
+    body_html = "".join(_render_post_block(para) for para in post["body"].split("\n\n") if para.strip())
     return """
 <article class="post-card" id="{anchor}">
   {photo_html}
@@ -1142,7 +1167,7 @@ FOOTER = f"""
     <div class="brand">Made With Love</div>
     <div>Handmade Artificial Flower Arrangements</div>
     <div class="flinks">
-      <a href="index.html">Home</a><a href="pricelist.html">Our Work &amp; Price List</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="#" id="cookie-settings-link">Cookie Settings</a><a href="{FACEBOOK_URL}" class="fb-icon" target="_blank" rel="noopener" aria-label="Made With Love on Facebook">{FB_ICON_SVG}</a><a href="staff.html" class="staff-link" rel="nofollow" aria-label="Staff">{STAFF_ICON_SVG}</a>
+      <a href="index.html">Home</a><a href="pricelist.html">Our Work &amp; Price List</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="#" id="cookie-settings-link">Cookie Settings</a><a href="{FACEBOOK_URL}" class="fb-icon" target="_blank" rel="noopener" aria-label="Made With Love on Facebook">{FB_ICON_SVG}</a><a href="staff.html" class="staff-link" target="_blank" rel="noopener nofollow" aria-label="Staff (opens in a new tab)">{STAFF_ICON_SVG}</a>
     </div>
   </div>
 </footer>
@@ -1721,6 +1746,16 @@ STAFF_PAGE = r'''<!DOCTYPE html>
   @media(min-width:640px){.sheet{border-radius:18px}}
   .sheet .ph{width:100%;max-height:320px;background:var(--surface2);border-radius:12px;display:flex;align-items:center;justify-content:center;min-height:120px;font-size:3rem;overflow:hidden;margin:10px 0}
   .sheet .ph img{width:100%;max-height:320px;object-fit:contain}
+  .tabs{display:flex;gap:8px;margin:0 0 12px}
+  .tab{padding:8px 18px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:600}
+  .tab.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  table.cal{width:100%;border-collapse:collapse;font-size:.85rem;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  table.cal th{background:var(--surface2);text-align:left;padding:9px 10px;font-size:.72rem;color:var(--soft);text-transform:uppercase;letter-spacing:.04em}
+  table.cal td{padding:10px;border-top:1px solid var(--line);vertical-align:top}
+  .calwrap{overflow-x:auto}
+  .pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.72rem;font-weight:700}
+  .pill.now{background:var(--warnbg);color:var(--warn)}.pill.soon{background:var(--surface2);color:var(--deep)}
+  .calnote{font-size:.78rem;color:var(--soft);margin:10px 0}
   .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0 14px}
   .grid3 div{font-size:.9rem;min-width:0}.grid3 span{display:block;font-size:.72rem;color:var(--soft)}
 </style>
@@ -1834,6 +1869,7 @@ var WHCore = (function () {
     app.innerHTML =
       '<div class="top"><div><h1>Stock</h1><div class="updated">' + (S.at ? "Updated " + esc(new Date(S.at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })) : "") + '</div></div>' +
       '<div><button class="btn ghost" id="refresh">Refresh</button> <button class="btn ghost" id="lock">Lock</button></div></div>' +
+      '<div class="tabs"><button class="tab on" id="tab-stock">Stock</button><button class="tab" id="tab-cal">Calendar</button></div>' +
       '<div class="stats"><div class="stat"><b>' + S.products.length + '</b><span>Products</span></div><div class="stat"><b>' + units + '</b><span>Units</span></div>' +
       '<div class="stat"><b>£' + cost.toFixed(2) + '</b><span>At cost</span></div><div class="stat"><b>£' + whole.toFixed(2) + '</b><span>At wholesale</span></div>' +
       '<div class="stat' + (low ? " warn" : "") + '"><b>' + low + '</b><span>Low / out</span></div></div>' +
@@ -1841,6 +1877,7 @@ var WHCore = (function () {
       '<div class="chips" id="chips">' + cats.map(function (c) { return '<button class="chip' + (c === S.cat ? " on" : "") + '" data-c="' + esc(c) + '">' + esc(c) + "</button>"; }).join("") +
       '<button class="chip' + (S.low ? " on" : "") + '" data-low="1">Low / out only</button></div>' +
       '<div class="list" id="list"></div>';
+    document.getElementById("tab-cal").onclick = calView;
     document.getElementById("lock").onclick = function () { try { sessionStorage.removeItem("mwl-staff"); } catch (e) { /* ignore */ } S.pw = ""; lockScreen(""); };
     document.getElementById("refresh").onclick = function () { load(S.pw); };
     document.getElementById("q").oninput = function (e) { S.q = e.target.value; list(); };
@@ -1890,6 +1927,41 @@ var WHCore = (function () {
       });
     }, { rootMargin: "200px" });
     Array.prototype.forEach.call(document.querySelectorAll("[data-th]"), function (n) { observer.observe(n); });
+  }
+
+  var CAL = [
+    { d: "2026-10-31", n: "Halloween", lead: 28, c: "Orange, purple, black", p: "Halloween pumpkins and lantern" },
+    { d: "2026-11-08", n: "Remembrance Sunday", lead: 25, c: "Red poppies, white", p: "Grave pots, wreaths in red and white" },
+    { d: "2026-12-25", n: "Christmas (and graveside tributes)", lead: 40, c: "Red, white, green", p: "Winter wonderland, wreaths, grave pots" },
+    { d: "2027-02-14", n: "Valentine's Day", lead: 30, c: "Red, pink", p: "Rose bears, Rose Bunnie, red hat boxes" },
+    { d: "2027-03-07", n: "Mother's Day (Mothering Sunday)", lead: 30, c: "Pink, white, yellow", p: "Handbag bouquets, hat boxes, rose bears" },
+    { d: "2027-03-28", n: "Easter", lead: 21, c: "Pastels, yellow", p: "Rose Bunnie, envelope arrangements, pastel hat boxes" },
+    { d: "2027-06-20", n: "Father's Day", lead: 24, c: "-", p: "A 'gifts for her to give' post suits better than flowers" },
+    { d: "2027-10-31", n: "Halloween", lead: 28, c: "Orange, purple, black", p: "Halloween pumpkins and lantern" },
+    { d: "2027-11-14", n: "Remembrance Sunday", lead: 25, c: "Red poppies, white", p: "Grave pots, wreaths in red and white" },
+    { d: "2027-12-25", n: "Christmas (and graveside tributes)", lead: 40, c: "Red, white, green", p: "Winter wonderland, wreaths, grave pots" }
+  ];
+  function dayStart(iso) { var a = iso.split("-"); return new Date(+a[0], +a[1] - 1, +a[2]); }
+  function fmt(dt) { return dt.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }); }
+  function calView() {
+    var today = new Date(); today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    var rows = CAL.map(function (e) {
+      var date = dayStart(e.d), postBy = new Date(date.getTime() - e.lead * 86400000);
+      var days = Math.round((date - today) / 86400000);
+      return { e: e, date: date, postBy: postBy, days: days };
+    }).filter(function (r) { return r.days >= 0; });
+    var html = '<div class="top"><div><h1>Calendar</h1><div class="updated">Dates worth posting about, with the colours and products that suit them</div></div>' +
+      '<div><button class="btn ghost" id="lock2">Lock</button></div></div>' +
+      '<div class="tabs"><button class="tab" id="tab-stock2">Stock</button><button class="tab on">Calendar</button></div>' +
+      '<div class="calwrap"><table class="cal"><tr><th>Date</th><th>Occasion</th><th>Post by</th><th>Colours</th><th>Products to feature</th></tr>' +
+      rows.map(function (r) {
+        var tag = r.postBy <= today ? '<span class="pill now">Post now</span>' : '<span class="pill soon">In ' + Math.round((r.postBy - today) / 86400000) + ' days</span>';
+        return '<tr><td>' + esc(fmt(r.date)) + '<br><span class="updated">' + r.days + ' days to go</span></td><td><b>' + esc(r.e.n) + '</b></td><td>' + esc(fmt(r.postBy)) + '<br>' + tag + '</td><td>' + esc(r.e.c) + '</td><td>' + esc(r.e.p) + '</td></tr>';
+      }).join("") + '</table></div>' +
+      '<p class="calnote">"Post by" is a suggestion: about three to five weeks before each date. Past dates drop off automatically. The list runs to Christmas 2027 - ask Claude to extend it.</p>';
+    app.innerHTML = html;
+    document.getElementById("tab-stock2").onclick = view;
+    document.getElementById("lock2").onclick = function () { try { sessionStorage.removeItem("mwl-staff"); } catch (e) { /* ignore */ } S.pw = ""; lockScreen(""); };
   }
   function detail(id) {
     var p = S.products.filter(function (x) { return x.id === id; })[0]; if (!p) return;
