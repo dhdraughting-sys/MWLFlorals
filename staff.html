@@ -121,7 +121,7 @@ var WHCore = (function () {
 
 (function () {
   var app = document.getElementById("app");
-  var S = { pw: "", products: [], qty: {}, at: "", thumbs: {}, cat: "All", low: false, q: "" };
+  var S = { pw: "", products: [], qty: {}, at: "", thumbs: {}, cat: "All", low: false, q: "", sales: null, range: "today" };
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function money(n) { return (n === null || n === undefined || n === "" || isNaN(Number(n))) ? "-" : "£" + Number(n).toFixed(2); }
   function codeNum(c) { var m = /^WH-(\d+)$/i.exec(c || ""); return m ? parseInt(m[1], 10) : 0; }
@@ -151,11 +151,71 @@ var WHCore = (function () {
       try { pd = await WHCore.decrypt(pt, pw); } catch (e) { lockScreen("That password isn't right."); return; }
       var st = await getText("wh/stock.dat"), sd = { s: {}, at: "" };
       if (st !== null) { try { sd = await WHCore.decrypt(st, pw); } catch (e) { /* ignore */ } }
+      var sl = await getText("wh/sales.dat"), salesD = null;
+      if (sl !== null) { try { salesD = await WHCore.decrypt(sl, pw); } catch (e) { /* ignore */ } }
+      S.sales = salesD;
       S.pw = pw; S.products = (pd.products || []).filter(function (p) { return !p.deleted; });
       S.qty = sd.s || {}; S.at = sd.at || "";
       try { sessionStorage.setItem("mwl-staff", pw); } catch (e) { /* ignore */ }
       view();
     } catch (e) { lockScreen("Couldn't load - check your connection and try again."); }
+  }
+  function tabs(on) {
+    function t(k, label) { return '<button class="tab' + (on === k ? " on" : "") + '" data-t="' + k + '">' + label + "</button>"; }
+    return '<div class="tabs">' + t("stock", "Stock") + t("sales", "Sales") + t("cal", "Calendar") + "</div>";
+  }
+  function wireTabs() {
+    Array.prototype.forEach.call(document.querySelectorAll(".tabs .tab"), function (b) {
+      b.onclick = function () { var k = b.dataset.t; if (k === "stock") view(); else if (k === "sales") salesView(); else calView(); };
+    });
+  }
+  function gbp(n) { n = Math.round((Number(n) || 0) * 100) / 100; return (n < 0 ? "-" : "") + "£" + Math.abs(n).toFixed(2); }
+  function localDay(d) { return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function bounds(r) {
+    var now = new Date(), y = now.getFullYear(), m = now.getMonth(), d = now.getDate(), t = localDay(now);
+    if (r === "today") return [t, t];
+    if (r === "yesterday") { var yy = localDay(new Date(y, m, d - 1)); return [yy, yy]; }
+    if (r === "week") return [localDay(new Date(y, m, d - 6)), t];
+    if (r === "month") return [localDay(new Date(y, m, 1)), t];
+    if (r === "lastmonth") return [localDay(new Date(y, m - 1, 1)), localDay(new Date(y, m, 0))];
+    return ["", ""];
+  }
+  function niceDay(k) { var a = k.split("-"); return new Date(+a[0], +a[1] - 1, +a[2]).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }); }
+  function salesView() {
+    var sd = S.sales;
+    var html = '<div class="top"><div><h1>Sales</h1><div class="updated">' + (sd && sd.at ? "Updated " + esc(new Date(sd.at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })) : "Sales are made in the catalogue app") + '</div></div>' +
+      '<div><button class="btn ghost" id="refresh3">Refresh</button> <button class="btn ghost" id="lock3">Lock</button></div></div>' + tabs("sales");
+    if (!sd) {
+      app.innerHTML = html + '<div class="empty">No sales have been made yet.</div>';
+    } else {
+      var b = bounds(S.range), keys = Object.keys(sd.days || {}).filter(function (k) { return (!b[0] || k >= b[0]) && (!b[1] || k <= b[1]); }).sort().reverse();
+      var T = { rev: 0, cost: 0, n: 0, units: 0, unpaid: 0, miss: 0 };
+      keys.forEach(function (k) { var x = sd.days[k]; T.rev += x.rev; T.cost += x.cost; T.n += x.n; T.units += x.units; T.unpaid += x.unpaid; T.miss += x.miss || 0; });
+      var profit = T.rev - T.cost, margin = T.rev > 0 ? Math.round(profit / T.rev * 1000) / 10 + "%" : "-";
+      function chip(k, l) { return '<button class="chip' + (S.range === k ? " on" : "") + '" data-r="' + k + '">' + l + "</button>"; }
+      var recent = (sd.recent || []).filter(function (x) { var d = localDay(new Date(x.at)); return (!b[0] || d >= b[0]) && (!b[1] || d <= b[1]); });
+      html += '<div class="chips" id="rchips">' + chip("today", "Today") + chip("yesterday", "Yesterday") + chip("week", "Last 7 days") + chip("month", "This month") + chip("lastmonth", "Last month") + chip("all", "All time") + "</div>" +
+        '<div class="stats"><div class="stat"><b>' + gbp(T.rev) + '</b><span>Sales (takings)</span></div><div class="stat"><b>' + gbp(T.cost) + '</b><span>Cost of goods</span></div>' +
+        '<div class="stat' + (profit < 0 ? " warn" : "") + '"><b>' + gbp(profit) + '</b><span>Profit</span></div><div class="stat"><b>' + margin + '</b><span>Profit margin</span></div>' +
+        '<div class="stat"><b>' + T.n + '</b><span>Sales made</span></div><div class="stat"><b>' + T.units + '</b><span>Items sold</span></div>' +
+        '<div class="stat' + (T.unpaid > 0 ? " warn" : "") + '"><b>' + gbp(T.unpaid) + '</b><span>Not paid yet</span></div></div>' +
+        (T.miss ? '<p class="calnote">' + T.miss + ' sale(s) include an item with no cost price, so profit looks higher than it really is.</p>' : "");
+      if (!keys.length) html += '<div class="empty">No sales in this period.</div>';
+      else {
+        html += '<div class="calwrap"><table class="cal"><tr><th>Day</th><th>Sales</th><th>Cost</th><th>Profit</th><th>Margin</th><th>Made</th></tr>' +
+          keys.map(function (k) { var x = sd.days[k], pr = x.rev - x.cost; return "<tr><td>" + esc(niceDay(k)) + "</td><td>" + gbp(x.rev) + "</td><td>" + gbp(x.cost) + "</td><td>" + gbp(pr) + "</td><td>" + (x.rev > 0 ? Math.round(pr / x.rev * 1000) / 10 + "%" : "-") + "</td><td>" + x.n + "</td></tr>"; }).join("") + "</table></div>";
+        if (recent.length) html += '<h1 style="font-size:1rem;margin:16px 0 8px">Latest sales</h1><div class="list">' + recent.map(function (x) {
+          return '<div class="card" style="cursor:default"><div class="main"><div class="code">' + esc(x.no) + " &middot; " + esc(new Date(x.at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })) + '</div><div class="name">' + esc(x.name) + '</div><div class="sub">' + esc(x.items) + '</div></div>' +
+            '<div style="text-align:right"><b>' + gbp(x.total) + '</b><div class="sub">' + (x.void ? "Cancelled" : (x.paid ? "Paid" + (x.pay ? " - " + esc(x.pay) : "") : "Not paid")) + "</div></div></div>";
+        }).join("") + "</div>";
+      }
+      app.innerHTML = html;
+      document.getElementById("rchips").onclick = function (e) { var c = e.target.closest("button"); if (!c) return; S.range = c.dataset.r; salesView(); };
+    }
+    if (!sd) { /* html already set above */ }
+    wireTabs();
+    document.getElementById("refresh3").onclick = function () { load(S.pw).then(function () { salesView(); }); };
+    document.getElementById("lock3").onclick = function () { try { sessionStorage.removeItem("mwl-staff"); } catch (e) { /* ignore */ } S.pw = ""; lockScreen(""); };
   }
   var observer = null;
   function view() {
@@ -168,7 +228,7 @@ var WHCore = (function () {
     app.innerHTML =
       '<div class="top"><div><h1>Stock</h1><div class="updated">' + (S.at ? "Updated " + esc(new Date(S.at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })) : "") + '</div></div>' +
       '<div><button class="btn ghost" id="refresh">Refresh</button> <button class="btn ghost" id="lock">Lock</button></div></div>' +
-      '<div class="tabs"><button class="tab on" id="tab-stock">Stock</button><button class="tab" id="tab-cal">Calendar</button></div>' +
+      tabs("stock") +
       '<div class="stats"><div class="stat"><b>' + S.products.length + '</b><span>Products</span></div><div class="stat"><b>' + units + '</b><span>Units</span></div>' +
       '<div class="stat"><b>£' + cost.toFixed(2) + '</b><span>At cost</span></div><div class="stat"><b>£' + whole.toFixed(2) + '</b><span>At wholesale</span></div>' +
       '<div class="stat' + (low ? " warn" : "") + '"><b>' + low + '</b><span>Low / out</span></div></div>' +
@@ -176,7 +236,7 @@ var WHCore = (function () {
       '<div class="chips" id="chips">' + cats.map(function (c) { return '<button class="chip' + (c === S.cat ? " on" : "") + '" data-c="' + esc(c) + '">' + esc(c) + "</button>"; }).join("") +
       '<button class="chip' + (S.low ? " on" : "") + '" data-low="1">Low / out only</button></div>' +
       '<div class="list" id="list"></div>';
-    document.getElementById("tab-cal").onclick = calView;
+    wireTabs();
     document.getElementById("lock").onclick = function () { try { sessionStorage.removeItem("mwl-staff"); } catch (e) { /* ignore */ } S.pw = ""; lockScreen(""); };
     document.getElementById("refresh").onclick = function () { load(S.pw); };
     document.getElementById("q").oninput = function (e) { S.q = e.target.value; list(); };
@@ -251,7 +311,7 @@ var WHCore = (function () {
     }).filter(function (r) { return r.days >= 0; });
     var html = '<div class="top"><div><h1>Calendar</h1><div class="updated">Dates worth posting about, with the colours and products that suit them</div></div>' +
       '<div><button class="btn ghost" id="lock2">Lock</button></div></div>' +
-      '<div class="tabs"><button class="tab" id="tab-stock2">Stock</button><button class="tab on">Calendar</button></div>' +
+      tabs("cal") +
       '<div class="calwrap"><table class="cal"><tr><th>Date</th><th>Occasion</th><th>Post by</th><th>Colours</th><th>Products to feature</th></tr>' +
       rows.map(function (r) {
         var tag = r.postBy <= today ? '<span class="pill now">Post now</span>' : '<span class="pill soon">In ' + Math.round((r.postBy - today) / 86400000) + ' days</span>';
@@ -259,7 +319,7 @@ var WHCore = (function () {
       }).join("") + '</table></div>' +
       '<p class="calnote">"Post by" is a suggestion: about three to five weeks before each date. Past dates drop off automatically. The list runs to Christmas 2027 - ask Claude to extend it.</p>';
     app.innerHTML = html;
-    document.getElementById("tab-stock2").onclick = view;
+    wireTabs();
     document.getElementById("lock2").onclick = function () { try { sessionStorage.removeItem("mwl-staff"); } catch (e) { /* ignore */ } S.pw = ""; lockScreen(""); };
   }
   function detail(id) {
