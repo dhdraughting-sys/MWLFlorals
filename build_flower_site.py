@@ -1899,7 +1899,7 @@ var WHCore = (function () {
         '<div class="stats"><div class="stat"><b>' + gbp(T.rev) + '</b><span>Sales (takings)</span></div><div class="stat"><b>' + gbp(T.cost) + '</b><span>Cost of goods</span></div>' +
         '<div class="stat' + (profit < 0 ? " warn" : "") + '"><b>' + gbp(profit) + '</b><span>Profit</span></div><div class="stat"><b>' + margin + '</b><span>Profit margin</span></div>' +
         '<div class="stat"><b>' + T.n + '</b><span>Sales made</span></div><div class="stat"><b>' + T.units + '</b><span>Items sold</span></div>' +
-        '<div class="stat' + (T.unpaid > 0 ? " warn" : "") + '"><b>' + gbp(T.unpaid) + '</b><span>Not paid yet</span></div></div>' +
+        '<div class="stat' + (T.unpaid > 0 ? " warn" : "") + '"><b>' + gbp(T.unpaid) + '</b><span>Still owed to you</span></div></div>' +
         (T.miss ? '<p class="calnote">' + T.miss + ' sale(s) include an item with no cost price, so profit looks higher than it really is.</p>' : "");
       if (!keys.length) html += '<div class="empty">No sales in this period.</div>';
       else {
