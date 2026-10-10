@@ -68,6 +68,7 @@ GALLERY_ITEMS = [
 CATALOGUE_CATEGORY_ICONS = {
     "Wreaths": "\U0001F342",
     "Hat Boxes": "\U0001F3A9",
+    "Handbag Bouquets": "\U0001F45C",
     "Grave Pots": "\U0001F33F",
     "Bobo Balloons": "\U0001F388",
     "Rose Bears": "\U0001F9F8",
@@ -272,12 +273,10 @@ def currency(n):
 
 
 def pricelist_section(items):
-    """Builds the filterable Price List page from load_catalogue_items()'s
-    output. No lightbox/JSON re-render like the portfolio gallery — every
-    card is rendered server-side up front and the filter buttons just
-    show/hide by category, which keeps this simple since (unlike the
-    portfolio) every item always has a price to show, never a "coming
-    soon" placeholder category."""
+    """Builds the "Our Work & Price List" page from load_catalogue_items()'s
+    output: every category is its own section (photo cards with name,
+    description and price), with buttons at the top that jump to each
+    section. Everything is rendered server-side up front."""
     if not items:
         return """
 <section class="arrangements" id="price-list">
@@ -293,13 +292,18 @@ def pricelist_section(items):
     present = [c for c in CATALOGUE_CATEGORY_ORDER if any(it["category"] == c for it in items)]
     present += sorted({it["category"] for it in items if it["category"] not in present})
 
+    def cat_id(cat):
+        return "cat-" + _slugify(cat)
+
+    # Jump buttons (no "All" — every category is already on the page as its
+    # own section, so people just scroll, or tap a button to jump to one).
     filter_btns = "\n      ".join(
-        '<button type="button" class="filter-btn{active}" data-filter="{cat_attr}">{cat_label}</button>'.format(
-            active=" active" if i == 0 else "",
-            cat_attr=_esc(cat),
+        '<a class="filter-btn" href="#{cid}">{icon} {cat_label}</a>'.format(
+            cid=cat_id(cat),
+            icon=CATALOGUE_CATEGORY_ICONS.get(cat, "\U0001F338"),
             cat_label=_esc(cat),
         )
-        for i, cat in enumerate(["All"] + present)
+        for cat in present
     )
 
     def card_html(it):
@@ -343,14 +347,27 @@ def pricelist_section(items):
             photo_html=photo_html, name=_esc(it["name"]), desc_html=desc_html, price=currency(it["price"]),
         )
 
+    sections = "".join(
+        """
+    <div class="price-section" id="{cid}">
+      <h2 class="price-section-title"><span class="ps-icon">{icon}</span> {label}</h2>
+      <div class="price-grid">{cards}
+      </div>
+    </div>""".format(
+            cid=cat_id(cat),
+            icon=CATALOGUE_CATEGORY_ICONS.get(cat, "\U0001F338"),
+            label=_esc(cat),
+            cards="".join(card_html(it) for it in items if it["category"] == cat),
+        )
+        for cat in present
+    )
+
     return """
 <section class="arrangements" id="price-list">
   <div class="wrap">
-    <div class="gallery-filters" id="mwl-price-filters">
+    <div class="gallery-filters no-print" id="mwl-price-filters">
       {filter_btns}
-    </div>
-    <div class="price-grid" id="mwl-price-grid">{cards}
-    </div>
+    </div>{sections}
     <div style="text-align:center;margin-top:30px;">
       <button type="button" class="btn btn-secondary no-print" id="mwl-print-btn">&#128424;&#65039; Print / Save as PDF</button>
     </div>
@@ -360,18 +377,6 @@ def pricelist_section(items):
 
 <script>
 (function(){{
-  var filterBtns = document.querySelectorAll('#mwl-price-filters .filter-btn');
-  var cards = document.querySelectorAll('#mwl-price-grid .price-card');
-  filterBtns.forEach(function(btn) {{
-    btn.addEventListener('click', function() {{
-      filterBtns.forEach(function(b) {{ b.classList.remove('active'); }});
-      btn.classList.add('active');
-      var filter = btn.getAttribute('data-filter');
-      cards.forEach(function(card) {{
-        card.style.display = (filter === 'All' || card.dataset.category === filter) ? '' : 'none';
-      }});
-    }});
-  }});
   var printBtn = document.getElementById('mwl-print-btn');
   if (printBtn) printBtn.addEventListener('click', function() {{ window.print(); }});
 
@@ -400,7 +405,7 @@ def pricelist_section(items):
   }});
 }})();
 </script>
-""".format(filter_btns=filter_btns, cards="".join(card_html(it) for it in items))
+""".format(filter_btns=filter_btns, sections=sections)
 
 
 CSS = """
@@ -620,6 +625,10 @@ CSS = """
   }
 
   /* ---------------- Price List ---------------- */
+  .price-section{margin-bottom:46px;scroll-margin-top:84px;}
+  .price-section-title{font-size:26px;margin-bottom:18px;color:var(--hessian-dark);display:flex;align-items:center;gap:10px;border-bottom:1.5px solid #e9ddc9;padding-bottom:8px;}
+  .price-section-title .ps-icon{font-size:24px;}
+  a.filter-btn{text-decoration:none;display:inline-block;}
   .price-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:22px;}
   .price-card{background:var(--card);border:1px solid #eee1d0;border-radius:var(--radius);overflow:hidden;transition:box-shadow .15s,transform .15s;}
   .price-card:hover{box-shadow:0 14px 34px rgba(74,63,53,.14);transform:translateY(-3px);}
@@ -979,7 +988,7 @@ FB_ICON_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><
 
 
 def nav_html(active):
-    items = [("index.html", "Home"), ("portfolio.html", "Portfolio"), ("pricelist.html", "Price List"), ("news.html", "News"), ("about.html", "About"), ("contact.html", "Contact")]
+    items = [("index.html", "Home"), ("pricelist.html", "Our Work &amp; Price List"), ("news.html", "News"), ("about.html", "About"), ("contact.html", "Contact")]
     ACTIVE_CLASS = ' class="active"'
     links = "\n".join(
         f'      <a href="{href}"{ACTIVE_CLASS if href == active else ""}>{label}</a>'
@@ -1032,7 +1041,7 @@ FOOTER = f"""
     <div class="brand">Made With Love</div>
     <div>Handmade Artificial Flower Arrangements</div>
     <div class="flinks">
-      <a href="index.html">Home</a><a href="portfolio.html">Portfolio</a><a href="pricelist.html">Price List</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="#" id="cookie-settings-link">Cookie Settings</a><a href="{FACEBOOK_URL}" class="fb-icon" target="_blank" rel="noopener" aria-label="Made With Love on Facebook">{FB_ICON_SVG}</a>
+      <a href="index.html">Home</a><a href="pricelist.html">Our Work &amp; Price List</a><a href="news.html">News</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="#" id="cookie-settings-link">Cookie Settings</a><a href="{FACEBOOK_URL}" class="fb-icon" target="_blank" rel="noopener" aria-label="Made With Love on Facebook">{FB_ICON_SVG}</a>
     </div>
   </div>
 </footer>
@@ -1140,9 +1149,9 @@ function mwlLoadTawk(){
 
   var KB = [
     { topic: "Our Arrangements", keys: ["arrangement","product","make","wreath","hat box","grave pot","balloon","rose bear","portfolio"],
-      a: "We make wreaths, hat box arrangements, grave pots, bobo balloons and hand-made rose bears — all with high-quality artificial flowers that keep their beauty all year round. See the Portfolio page for the full range." },
+      a: "We make wreaths, hat box arrangements, grave pots, bobo balloons and hand-made rose bears — all with high-quality artificial flowers that keep their beauty all year round. See our Work & Price List page for the full range, with photos and prices." },
     { topic: "Ordering", keys: ["order","buy","price","cost","how do i"],
-      a: "Check out our Price List page for current prices, then get in touch with what you're after — style, colours and any special dates — and we'll come back with options." },
+      a: "Check out our Work & Price List page for photos and current prices, then get in touch with what you're after — style, colours and any special dates — and we'll come back with options." },
     { topic: "Delivery & Collection", keys: ["deliver","collect","postage","ship"],
       a: "Local delivery and collection can be arranged — just ask when you get in touch." },
     { topic: "Custom Colours", keys: ["colour","color","custom","match"],
@@ -1280,7 +1289,7 @@ HOME_HERO = f"""
       <h1 class="script-title script">Made With Love</h1>
       <p class="lead">Wreaths, hat box arrangements, grave pots, bobo balloons and hand-made rose bears &mdash; each one handmade with care, using beautiful artificial flowers that keep their looks all year round.</p>
       <div class="hero-ctas">
-        <a href="portfolio.html" class="btn btn-primary">View Portfolio</a>
+        <a href="pricelist.html" class="btn btn-primary">Our Work &amp; Price List</a>
         <a href="contact.html" class="btn btn-secondary">Get in Touch</a>
       </div>
     </div>
@@ -1309,7 +1318,7 @@ HOME_FEATURED = f"""
     <div class="section-head">
       <span class="eyebrow">What We Make</span>
       <h2>A Few Favourites</h2>
-      <p>Every piece handmade to order &mdash; see the full range on our Portfolio page.</p>
+      <p>Every piece handmade to order &mdash; see the full range, with prices, in Our Work &amp; Price List.</p>
     </div>
     <div class="prod-grid">
       <div class="prod-card">
@@ -1328,8 +1337,7 @@ HOME_FEATURED = f"""
       </div>
     </div>
     <div style="text-align:center;margin-top:38px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
-      <a href="portfolio.html" class="btn btn-primary">See the Full Portfolio</a>
-      <a href="pricelist.html" class="btn btn-secondary">View Price List</a>
+      <a href="pricelist.html" class="btn btn-primary">See Our Work &amp; Price List</a>
     </div>
   </div>
 </section>
@@ -1377,10 +1385,9 @@ home_body = HOME_HERO + HOME_ABOUT_TEASER + HOME_FEATURED + blog_teaser_section(
 
 # ---------------- PORTFOLIO ----------------
 
-portfolio_body = gallery_section(
-    merged_gallery_categories(_catalogue_items),
-    GALLERY_ITEMS + catalogue_gallery_items(_catalogue_items),
-) + HOME_CTA
+# (The Portfolio page was merged into the Price List page - see
+# portfolio.html redirect near the bottom. gallery_section() and
+# GALLERY_ITEMS are kept in this file but no longer used for a page.)
 
 # ---------------- PRICE LIST ----------------
 
@@ -1514,17 +1521,11 @@ pages = {
         "Made With Love — handmade artificial flower wreaths, hat box arrangements, grave pots, bobo balloons and rose bears. Beautiful arrangements that last.",
         "index.html", home_body,
     ),
-    "portfolio.html": page(
-        "Portfolio | Made With Love",
-        "See the full range of handmade artificial flower arrangements from Made With Love — wreaths, hat boxes, grave pots, bobo balloons and rose bears.",
-        "portfolio.html", portfolio_body,
-        page_hero={"eyebrow":"What We Make","title":"Our Portfolio","sub":"Every piece handmade to order — ask about custom colours for any occasion."},
-    ),
     "pricelist.html": page(
-        "Price List | Made With Love",
-        "Current prices for Made With Love's handmade artificial flower arrangements — wreaths, hat boxes, grave pots, bobo balloons and rose bears.",
+        "Our Work &amp; Price List | Made With Love",
+        "See our handmade artificial flower arrangements and their current prices — wreaths, hat boxes, handbag bouquets, grave pots, bobo balloons and rose bears.",
         "pricelist.html", pricelist_body,
-        page_hero={"eyebrow":"Prices","title":"Price List","sub":"Every piece handmade to order — get in touch for custom colours, sizes or dates."},
+        page_hero={"eyebrow":"What We Make","title":"Our Work &amp; Price List","sub":"Every piece handmade to order — get in touch for custom colours, sizes or dates."},
     ),
     "news.html": page(
         "News | Made With Love",
@@ -1551,6 +1552,23 @@ pages = {
         page_hero={"eyebrow":"Your Privacy","title":"Privacy Policy","sub":"How we collect, use and protect your information."},
     ),
 }
+
+# The Portfolio page has been merged into "Our Work & Price List". Keep the
+# old address working (bookmarks, Google) by sending visitors to the home page.
+pages["portfolio.html"] = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Made With Love</title>
+<meta http-equiv="refresh" content="0; url=index.html">
+<script>window.location.replace('index.html');</script>
+</head>
+<body>
+<p><a href="index.html">Taking you to the Made With Love home page&hellip;</a></p>
+</body>
+</html>
+"""
 
 for fname, html in pages.items():
     with open(os.path.join(BASE, fname), "w", encoding="utf-8") as f:
