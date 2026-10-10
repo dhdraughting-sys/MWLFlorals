@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Staff</title>
+<style>
+  :root{--bg:#faf5ee;--surface:#fff;--surface2:#f3e9dc;--ink:#3b2e22;--soft:#8a7862;--accent:#8f7350;--deep:#6b5539;--line:#e6dbca;--warn:#a97417;--warnbg:#f6e6c8;--danger:#ad4a37;}
+  @media (prefers-color-scheme: dark){:root{--bg:#201810;--surface:#2a2016;--surface2:#372a1c;--ink:#f2e7d8;--soft:#c2ac8e;--accent:#cd9f6d;--deep:#e2b989;--line:#493a28;--warn:#e0ac4f;--warnbg:#3c2f18;--danger:#e08d76;}}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Poppins',system-ui,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+  .wrap{max-width:900px;margin:0 auto;padding:16px}
+  h1{font-size:1.3rem}
+  .lock{max-width:380px;margin:18vh auto 0;text-align:center}
+  .lock p{color:var(--soft);font-size:.9rem;margin:8px 0 16px}
+  input[type=password],input[type=search]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;margin-bottom:10px}
+  button{font:inherit;cursor:pointer}
+  .btn{padding:11px 20px;border-radius:999px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-weight:600}
+  .btn.ghost{background:transparent;color:var(--deep)}
+  .err{color:var(--danger);font-size:.85rem;min-height:1.3em;margin-bottom:8px}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+  .updated{font-size:.75rem;color:var(--soft)}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:12px 0}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+  .stat b{display:block;font-size:1.1rem}.stat span{font-size:.72rem;color:var(--soft)}
+  .stat.warn b{color:var(--warn)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .chip{padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:.82rem}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .list{display:flex;flex-direction:column;gap:10px}
+  .card{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;cursor:pointer}
+  .th{width:64px;height:64px;flex:none;border-radius:10px;background:var(--surface2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.6rem}
+  .th img{width:100%;height:100%;object-fit:cover}
+  .main{flex:1;min-width:0}
+  .code{font-size:.72rem;font-weight:700;letter-spacing:.06em;color:var(--deep)}
+  .name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sub{font-size:.75rem;color:var(--soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .q{font-size:1.4rem;font-weight:700;text-align:center;min-width:48px}
+  .q.low{color:var(--warn)}.q.out{color:var(--danger)}
+  .empty{text-align:center;color:var(--soft);padding:40px 0}
+  .ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+  @media(min-width:640px){.ov{align-items:center}}
+  .sheet{background:var(--surface);width:100%;max-width:520px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:18px}
+  @media(min-width:640px){.sheet{border-radius:18px}}
+  .sheet .ph{width:100%;max-height:320px;background:var(--surface2);border-radius:12px;display:flex;align-items:center;justify-content:center;min-height:120px;font-size:3rem;overflow:hidden;margin:10px 0}
+  .sheet .ph img{width:100%;max-height:320px;object-fit:contain}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0 14px}
+  .grid3 div{font-size:.9rem;min-width:0}.grid3 span{display:block;font-size:.72rem;color:var(--soft)}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+// ---- WHCore: password-based encryption for the private stock store -----
+// Everything stored on the website for the warehouse stock is wrapped by
+// this first: PBKDF2-SHA256 (600,000 rounds) turns the password into a
+// key, AES-256-GCM scrambles + tamper-protects the data. Without the
+// password the files are unreadable.
+var WHCore = (function () {
+  var enc = new TextEncoder(), dec = new TextDecoder();
+  var ITER = 600000;
+  var keyCache = {};
+  function toB64(buf) {
+    var bytes = new Uint8Array(buf), s = "", i, CH = 0x8000;
+    for (i = 0; i < bytes.length; i += CH) s += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
+    return btoa(s);
+  }
+  function fromB64(b64) {
+    var s = atob(b64), out = new Uint8Array(s.length), i;
+    for (i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+    return out;
+  }
+  function newSalt() { return toB64(crypto.getRandomValues(new Uint8Array(16))); }
+  async function getKey(pw, saltB64, iter) {
+    var id = saltB64 + "|" + iter + "|" + pw;
+    if (keyCache[id]) return keyCache[id];
+    var base = await crypto.subtle.importKey("raw", enc.encode(pw), "PBKDF2", false, ["deriveKey"]);
+    var key = await crypto.subtle.deriveKey(
+      { name: "PBKDF2", salt: fromB64(saltB64), iterations: iter, hash: "SHA-256" },
+      base, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+    keyCache[id] = key;
+    return key;
+  }
+  // obj -> envelope string (JSON text safe to store anywhere)
+  async function encrypt(obj, pw, saltB64) {
+    var salt = saltB64 || newSalt();
+    var key = await getKey(pw, salt, ITER);
+    var iv = crypto.getRandomValues(new Uint8Array(12));
+    var ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, enc.encode(JSON.stringify(obj)));
+    return JSON.stringify({ v: 1, iter: ITER, salt: salt, iv: toB64(iv), data: toB64(ct) });
+  }
+  // envelope string -> obj, or throws (wrong password / damaged file)
+  async function decrypt(envText, pw) {
+    var env = typeof envText === "string" ? JSON.parse(envText) : envText;
+    var key = await getKey(pw, env.salt, env.iter || ITER);
+    var pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv: fromB64(env.iv) }, key, fromB64(env.data));
+    return JSON.parse(dec.decode(pt));
+  }
+  function saltOf(envText) {
+    try { return (typeof envText === "string" ? JSON.parse(envText) : envText).salt || null; } catch (e) { return null; }
+  }
+  // ---- shared data rules (used by the app and the website page) ----
+  function stockMap(moves) {
+    var m = {};
+    (moves || []).forEach(function (x) { m[x.pid] = (m[x.pid] || 0) + (Number(x.q) || 0); });
+    return m;
+  }
+  return { encrypt: encrypt, decrypt: decrypt, saltOf: saltOf, newSalt: newSalt, stockMap: stockMap, toB64: toB64, fromB64: fromB64 };
+})();
+
+(function () {
+  var app = document.getElementById("app");
+  var S = { pw: "", products: [], qty: {}, at: "", thumbs: {}, cat: "All", low: false, q: "" };
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function money(n) { return (n === null || n === undefined || n === "" || isNaN(Number(n))) ? "-" : "£" + Number(n).toFixed(2); }
+  function codeNum(c) { var m = /^WH-(\d+)$/i.exec(c || ""); return m ? parseInt(m[1], 10) : 0; }
+  function level(p, n) { if (n <= 0) return "out"; if (Number(p.low) > 0 && n <= Number(p.low)) return "low"; return ""; }
+  async function getText(path) {
+    var r = await fetch(path + "?v=" + Date.now(), { cache: "no-store" });
+    if (r.status === 404) return null;
+    if (!r.ok) throw new Error("http " + r.status);
+    return await r.text();
+  }
+  function lockScreen(msg) {
+    app.innerHTML = '<div class="lock"><h1>Staff</h1><p>Enter the password.</p>' +
+      '<input type="password" id="pw" autocomplete="current-password" placeholder="Password" />' +
+      '<div class="err" id="err">' + esc(msg || "") + '</div><button class="btn" id="go">Open</button></div>';
+    var go = function () { load(document.getElementById("pw").value); };
+    document.getElementById("go").onclick = go;
+    document.getElementById("pw").onkeydown = function (e) { if (e.key === "Enter") go(); };
+    document.getElementById("pw").focus();
+  }
+  async function load(pw) {
+    if (!pw) return;
+    var btn = document.getElementById("go"); if (btn) { btn.disabled = true; btn.textContent = "Opening..."; }
+    try {
+      var pt = await getText("wh/products.dat");
+      if (pt === null) { lockScreen("Nothing has been set up here yet."); return; }
+      var pd;
+      try { pd = await WHCore.decrypt(pt, pw); } catch (e) { lockScreen("That password isn't right."); return; }
+      var st = await getText("wh/stock.dat"), sd = { s: {}, at: "" };
+      if (st !== null) { try { sd = await WHCore.decrypt(st, pw); } catch (e) { /* ignore */ } }
+      S.pw = pw; S.products = (pd.products || []).filter(function (p) { return !p.deleted; });
+      S.qty = sd.s || {}; S.at = sd.at || "";
+      try { sessionStorage.setItem("mwl-staff", pw); } catch (e) { /* ignore */ }
+      view();
+    } catch (e) { lockScreen("Couldn't load - check your connection and try again."); }
+  }
+  var observer = null;
+  function view() {
+    var units = 0, cost = 0, whole = 0, low = 0;
+    S.products.forEach(function (p) {
+      var n = S.qty[p.id] || 0; units += n; cost += n * (Number(p.cost) || 0); whole += n * (Number(p.price) || 0);
+      if (level(p, n)) low++;
+    });
+    var cats = ["All"].concat(Array.from(new Set(S.products.map(function (p) { return p.category || "Other"; }))).sort());
+    app.innerHTML =
+      '<div class="top"><div><h1>Stock</h1><div class="updated">' + (S.at ? "Updated " + esc(new Date(S.at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })) : "") + '</div></div>' +
+      '<div><button class="btn ghost" id="refresh">Refresh</button> <button class="btn ghost" id="lock">Lock</button></div></div>' +
+      '<div class="stats"><div class="stat"><b>' + S.products.length + '</b><span>Products</span></div><div class="stat"><b>' + units + '</b><span>Units</span></div>' +
+      '<div class="stat"><b>£' + cost.toFixed(2) + '</b><span>At cost</span></div><div class="stat"><b>£' + whole.toFixed(2) + '</b><span>At wholesale</span></div>' +
+      '<div class="stat' + (low ? " warn" : "") + '"><b>' + low + '</b><span>Low / out</span></div></div>' +
+      '<input type="search" id="q" placeholder="Search code, name, supplier..." value="' + esc(S.q) + '" />' +
+      '<div class="chips" id="chips">' + cats.map(function (c) { return '<button class="chip' + (c === S.cat ? " on" : "") + '" data-c="' + esc(c) + '">' + esc(c) + "</button>"; }).join("") +
+      '<button class="chip' + (S.low ? " on" : "") + '" data-low="1">Low / out only</button></div>' +
+      '<div class="list" id="list"></div>';
+    document.getElementById("lock").onclick = function () { try { sessionStorage.removeItem("mwl-staff"); } catch (e) { /* ignore */ } S.pw = ""; lockScreen(""); };
+    document.getElementById("refresh").onclick = function () { load(S.pw); };
+    document.getElementById("q").oninput = function (e) { S.q = e.target.value; list(); };
+    document.getElementById("chips").onclick = function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      if (b.dataset.low) S.low = !S.low; else S.cat = b.dataset.c;
+      Array.prototype.forEach.call(document.querySelectorAll("#chips .chip"), function (x) { x.classList.toggle("on", x.dataset.low ? S.low : x.dataset.c === S.cat); });
+      list();
+    };
+    list();
+  }
+  function list() {
+    var q = S.q.trim().toLowerCase();
+    var items = S.products.filter(function (p) {
+      var n = S.qty[p.id] || 0;
+      if (S.cat !== "All" && (p.category || "Other") !== S.cat) return false;
+      if (S.low && !level(p, n)) return false;
+      if (q && ![p.code, p.name, p.supplier, p.location, p.category].some(function (v) { return (v || "").toLowerCase().indexOf(q) >= 0; })) return false;
+      return true;
+    }).sort(function (a, b) { return codeNum(a.code) - codeNum(b.code); });
+    var el = document.getElementById("list");
+    if (!items.length) { el.innerHTML = '<div class="empty">Nothing to show.</div>'; return; }
+    el.innerHTML = items.map(function (p) {
+      var n = S.qty[p.id] || 0;
+      return '<div class="card" data-id="' + p.id + '"><div class="th" data-th="' + p.id + '">&#128230;</div><div class="main"><div class="code">' + esc(p.code) + '</div><div class="name">' + esc(p.name) + '</div>' +
+        '<div class="sub">' + esc([p.category, p.location].filter(Boolean).join(" · ")) + '</div><div class="sub">Wholesale ' + money(p.price) + '</div></div><div class="q ' + level(p, n) + '">' + n + "</div></div>";
+    }).join("");
+    el.onclick = function (e) { var c = e.target.closest(".card"); if (c) detail(c.dataset.id); };
+    thumbs(items);
+  }
+  async function loadImg(p, kind) {
+    var key = p.id + "-" + p.pv + kind;
+    if (S.thumbs[key]) return S.thumbs[key];
+    var t = await getText("wh/img/" + p.id + "-" + p.pv + kind + ".dat");
+    if (t === null) return null;
+    var d = (await WHCore.decrypt(t, S.pw)).d; S.thumbs[key] = d; return d;
+  }
+  function thumbs(items) {
+    if (observer) observer.disconnect();
+    observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        observer.unobserve(en.target);
+        var p = S.products.filter(function (x) { return x.id === en.target.dataset.th; })[0];
+        if (!p || !(p.pv > 0)) return;
+        loadImg(p, "t").then(function (d) { if (d) en.target.innerHTML = '<img src="' + d + '" alt="">'; }).catch(function () {});
+      });
+    }, { rootMargin: "200px" });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-th]"), function (n) { observer.observe(n); });
+  }
+  function detail(id) {
+    var p = S.products.filter(function (x) { return x.id === id; })[0]; if (!p) return;
+    var n = S.qty[p.id] || 0;
+    var ov = document.createElement("div"); ov.className = "ov";
+    ov.innerHTML = '<div class="sheet"><div class="top"><h1>' + esc(p.code) + " - " + esc(p.name) + '</h1><button class="btn ghost" id="x">Close</button></div>' +
+      '<div class="ph" id="ph">&#128230;</div><div class="grid3"><div><span>In stock</span><b class="q ' + level(p, n) + '" style="font-size:1.3rem;text-align:left">' + n + '</b></div>' +
+      '<div><span>Cost each</span><b>' + money(p.cost) + '</b></div><div><span>Wholesale each</span><b>' + money(p.price) + '</b></div>' +
+      '<div><span>Category</span><b>' + esc(p.category || "-") + '</b></div><div><span>Supplier</span><b>' + esc(p.supplier || "-") + '</b></div><div><span>Location</span><b>' + esc(p.location || "-") + "</b></div></div></div>";
+    document.body.appendChild(ov);
+    var close = function () { ov.remove(); };
+    ov.onclick = function (e) { if (e.target === ov) close(); };
+    ov.querySelector("#x").onclick = close;
+    if (p.pv > 0) loadImg(p, "f").then(function (d) { if (d) ov.querySelector("#ph").innerHTML = '<img src="' + d + '" alt="">'; }).catch(function () {});
+  }
+  var saved = ""; try { saved = sessionStorage.getItem("mwl-staff") || ""; } catch (e) { /* ignore */ }
+  if (saved) load(saved); else lockScreen("");
+})();
+</script>
+</body>
+</html>
