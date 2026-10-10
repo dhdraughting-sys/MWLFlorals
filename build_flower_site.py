@@ -272,6 +272,91 @@ def currency(n):
         return "POA"
 
 
+# Full-screen photo viewer for the "Our Work & Price List" page: tap/click
+# any item photo to see it big, swipe/arrow through that item's other
+# photos. Plain string (not .format()'d), so JS braces are written as-is.
+PRICE_LIGHTBOX = """
+<div class="lightbox" id="mwl-pl-lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button class="lightbox-close" id="mwl-pl-close" aria-label="Close photo">&#10005;</button>
+  <button class="lightbox-nav lightbox-prev" id="mwl-pl-prev" aria-label="Previous photo">&#10094;</button>
+  <div class="lightbox-inner">
+    <img id="mwl-pl-img" src="" alt="">
+    <div class="lightbox-cap" id="mwl-pl-cap"></div>
+  </div>
+  <button class="lightbox-nav lightbox-next" id="mwl-pl-next" aria-label="Next photo">&#10095;</button>
+</div>
+<script>
+(function(){
+  var lb = document.getElementById('mwl-pl-lightbox');
+  if (!lb) return;
+  var img = document.getElementById('mwl-pl-img');
+  var cap = document.getElementById('mwl-pl-cap');
+  var prev = document.getElementById('mwl-pl-prev');
+  var next = document.getElementById('mwl-pl-next');
+  var photos = [], idx = 0, label = '', lastFocus = null;
+
+  function show() {
+    img.src = photos[idx].src;
+    img.alt = photos[idx].alt || label;
+    cap.textContent = label + (photos.length > 1 ? '  \\u2022  ' + (idx + 1) + ' of ' + photos.length : '');
+    var many = photos.length > 1;
+    prev.style.display = many ? '' : 'none';
+    next.style.display = many ? '' : 'none';
+  }
+  function open(card, startSrc) {
+    photos = Array.prototype.map.call(card.querySelectorAll('.price-photo img'), function(i){ return { src: i.currentSrc || i.src, alt: i.alt }; });
+    if (!photos.length) return;
+    idx = 0;
+    for (var k = 0; k < photos.length; k++) { if (photos[k].src === startSrc) { idx = k; break; } }
+    var nameEl = card.querySelector('.price-name'), priceEl = card.querySelector('.price-tag');
+    label = (nameEl ? nameEl.textContent.trim() : '') + (priceEl ? '  \\u2014  ' + priceEl.textContent.trim() : '');
+    lastFocus = document.activeElement;
+    show();
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('mwl-pl-close').focus();
+  }
+  function close() {
+    lb.classList.remove('open');
+    document.body.style.overflow = '';
+    img.src = '';
+    if (lastFocus && lastFocus.focus) { try { lastFocus.focus(); } catch (e) {} }
+  }
+  function step(d) {
+    if (photos.length < 2) return;
+    idx = (idx + d + photos.length) % photos.length;
+    show();
+  }
+
+  document.addEventListener('click', function(e) {
+    var t = e.target;
+    if (t && t.tagName === 'IMG' && t.closest && t.closest('.price-photo.has-photo')) {
+      var card = t.closest('.price-card');
+      if (card) open(card, t.currentSrc || t.src);
+    }
+  });
+  document.getElementById('mwl-pl-close').addEventListener('click', close);
+  prev.addEventListener('click', function(e){ e.stopPropagation(); step(-1); });
+  next.addEventListener('click', function(e){ e.stopPropagation(); step(1); });
+  lb.addEventListener('click', function(e) { if (e.target === lb || e.target.classList.contains('lightbox-inner')) close(); });
+  document.addEventListener('keydown', function(e) {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowRight') step(1);
+  });
+  var sx = null;
+  lb.addEventListener('touchstart', function(e) { sx = e.changedTouches[0].clientX; }, { passive: true });
+  lb.addEventListener('touchend', function(e) {
+    if (sx === null) return;
+    var dx = e.changedTouches[0].clientX - sx; sx = null;
+    if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+  }, { passive: true });
+})();
+</script>
+"""
+
+
 def pricelist_section(items):
     """Builds the "Our Work & Price List" page from load_catalogue_items()'s
     output: every category is its own section (photo cards with name,
@@ -416,7 +501,7 @@ def pricelist_section(items):
   }});
 }})();
 </script>
-""".format(filter_btns=filter_btns, sections=sections)
+""".format(filter_btns=filter_btns, sections=sections) + PRICE_LIGHTBOX
 
 
 CSS = """
@@ -648,7 +733,9 @@ CSS = """
   .price-photo{aspect-ratio:1/1;overflow:hidden;background:linear-gradient(135deg,var(--blush) 0%, #f3e3d8 55%, var(--sage) 100%);display:flex;align-items:center;justify-content:center;position:relative;}
   .price-photo .ph-icon{font-size:2.2rem;}
   .price-photo.has-photo{background:none;}
-  .price-photo.has-photo img{width:100%;height:100%;object-fit:cover;}
+  .price-photo.has-photo img{width:100%;height:100%;object-fit:cover;cursor:zoom-in;}
+  .price-photo.has-photo::after{content:"\\1F50D";position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(255,253,249,.88);display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(74,63,53,.25);pointer-events:none;}
+  .lightbox-cap{padding:0 12px;}
   .price-photo.multi-photo{display:block;}
   .price-gallery{display:flex;width:100%;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
   .price-gallery::-webkit-scrollbar{display:none;}
